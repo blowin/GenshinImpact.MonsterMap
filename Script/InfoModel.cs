@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
+﻿using System;
+using Newtonsoft.Json;
 
-namespace 原神地图辅助器
+namespace GenshinImpact.MonsterMap.Script
 {
     public class InfoModel
     {

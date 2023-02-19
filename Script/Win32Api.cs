@@ -1,11 +1,11 @@
 ﻿//using OpenCvSharp;
+
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using static 原神地图辅助器.InfoModel;
+using static GenshinImpact.MonsterMap.Script.InfoModel;
 
-namespace 原神地图辅助器
+namespace GenshinImpact.MonsterMap.Script
 {
     public partial class Win32Api
     {

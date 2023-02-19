@@ -1,3 +1,5 @@
-
-.vs/原神地图辅助器/v16/.suo
+bin/*
+obj/*
+.idea/*
+.vs/*
 *.lock

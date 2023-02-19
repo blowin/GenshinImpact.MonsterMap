@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using GenshinImpact.MonsterMap.窗体;
 
-namespace 原神地图辅助器
+namespace GenshinImpact.MonsterMap
 {
     static class Program
     {
