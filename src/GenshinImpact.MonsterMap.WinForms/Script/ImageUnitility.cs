@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
+using OpenCvSharp.Features2D;
 
 namespace GenshinImpact.MonsterMap.Script
 {
@@ -27,7 +28,8 @@ namespace GenshinImpact.MonsterMap.Script
             {
                 Console.WriteLine("////////////////////////////////////////");
                 Timer.Show("开始分析");
-                using (var useMatch = useSift ? (Feature2D)OpenCvSharp.Features2D.SIFT.Create() : (Feature2D)OpenCvSharp.XFeatures2D.SURF.Create(400, 4, 3, true, true))
+                
+                using (var useMatch = useSift ? (Feature2D)SIFT.Create() : (Feature2D)OpenCvSharp.XFeatures2D.SURF.Create(400, 4, 3, true, true))
                 {
                     if (keyPointsSrc == null) useMatch.DetectAndCompute(matSrc, null, out keyPointsSrc, matSrcRet);//仅在第一次载入大地图分析点
                     Timer.Show("提取大地图特征点");

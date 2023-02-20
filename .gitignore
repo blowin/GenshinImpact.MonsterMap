@@ -1,6 +1,3 @@
-bin/*
-obj/*
-.idea/*
-.vs/*
-*.lock
-packages/*
+﻿/src/*/bin/
+/src/*/obj/
+/src/*/packages/

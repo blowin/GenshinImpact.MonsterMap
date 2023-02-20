@@ -31,7 +31,18 @@ namespace GenshinImpact.MonsterMap.Script
         public static float IngBias = 0;
         public static float LatBias = 0;
 
-        static Process[] gameProcess => Process.GetProcessesByName(isUseFakePicture ? "NotePad" : "YuanShen");
+        static Process[] gameProcess
+        {
+            get
+            {
+                if(isUseFakePicture)
+                    return Process.GetProcessesByName("NotePad");
+                
+                return Process.GetProcessesByName("YuanShen")
+                    .Concat(Process.GetProcessesByName("GenshinImpact"))
+                    .ToArray();
+            }
+        }
         public static Process YuanshenProcess => gameProcess.Any() ? gameProcess[0] : null;
         public static IntPtr mainHandle => YuanshenProcess.MainWindowHandle;
         public static IntPtr hDeskTop = Win32Api.FindWindow("Progman ", "Program   Manager ");
