@@ -1,29 +1,22 @@
-# 原神辅助怪物采集物雷达（GenshinImpact_MonsterMap）
+# Genshin Impact Radar Filter
  
-## 标记精英怪+采集物，告别查地图的烦恼
-## [下载地址（点我）](https://github.com/red-gezi/GenshinImpact_MonsterMap/releases)
-# 原理介绍
-+ 通过win32api采集原神进程的画面
-+ 通过Sift/Surf算法与模板中的大地图做对比，换算游戏窗口下地图对应的矩阵坐标
+## Mark elite monsters + collect items, bid farewell to the trouble of checking the map
+## [Download address (click me)](https://github.com/blowin/GenshinImpact.MonsterMap/releases)
+# Introduction
++ Capture the screen of Genshin process through win32 API
++ Compare with the big map in the template by Sift/Surf algorithm, and convert the matrix coordinates corresponding to the map under the game window
  ![3.png](/img/3.png)
-+ 查询b站wiki中原神地图，通过接口获得所有标记点的坐标和类型信息，并筛选出在矩阵范围内的标记点[连接地址（点我）](https://wiki.biligame.com/ys/%E5%8E%9F%E7%A5%9E%E5%9C%B0%E5%9B%BE%E5%B7%A5%E5%85%B7_%E5%85%A8%E5%9C%B0%E6%A0%87%E4%BD%8D%E7%BD%AE%E7%82%B9)
-+ 生成一张透明，鼠标能透过去的图片，将标记点画上去，然后重叠到游戏界面上层
-+ 已实号验证使用5天未被封
-# 使用说明
-打开exe文件（注意，一定要右键，以管理员模式启动，不然原神无法接受模拟输入）
-选择显示目标标签
-点击open按钮
++ Query the map of Genshin on the wiki of station b, obtain the coordinates and type information of all marked points through the interface, and filter out the marked points within the range of the matrix [connection address (click me)](https://wiki.biligame.com/ys/%E5%8E%9F%E7%A5%9E%E5%9C%B0%E5%9B%BE%E5%B7%A5%E5%85%B7_%E5%85%A8%E5%9C%B0%E6%A0%87%E4%BD%8D%E7%BD%AE%E7%82%B9)
++ Generate a transparent picture that the mouse can see through, draw the marker points on it, and then overlap it on the upper layer of the game interface
++ It has been verified with a real account and has not been blocked for 5 days
+# Instructions for use
+- Open the exe file (note, you must right-click and start in administrator mode, otherwise Yuanshin cannot accept analog input)
+- Choose to show the target tab
+- click the open button
 ps:
-+ 可在采集界面检查捕获图片是否完整，上层为采集图片，下层为特征的对比结果，如果是黑屏则是没有用管理员权限打开
-+ 标志点与实际位置不匹配可以通过校准页面的数值进行调整
++ You can check whether the captured image is complete in the collection interface. The upper layer is the collected image, and the lower layer is the comparison result of the features. If it is a black screen, it has not been opened with administrator privileges.
++ The mismatch between the mark point and the actual position can be adjusted by the value on the calibration page
 
-# 软件界面
+# User interface
 + ![1.png](/img/1.png)
 + ![1.png](/img/1.png)
-
-# 感谢名单
-+ [刘博士]提供图像处理支援（自己fork改地址）(https://github.com/red-gezi/GenshinImpact_MonsterMap/releases)
-# 投食码
-+ 觉得好用可以请我吃雪糕
-
-+ ![支付宝](/img/pay.png)

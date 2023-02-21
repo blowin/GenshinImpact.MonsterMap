@@ -15,9 +15,9 @@ namespace GenshinImpact.MonsterMap.Forms
         private void timer1_Tick(object sender, EventArgs e)
         {
             IntPtr ForegrouindWindow = Win32Api.GetForegroundWindow();
-            if (ForegrouindWindow == DataInfo.mainHandle)//当前置顶为原神
+            if (ForegrouindWindow == DataInfo.mainHandle)//The current top is Genshin
             {
-                if (!LastWindowIsYuanShen)//上次检测时原神进程不是置顶
+                if (!LastWindowIsYuanShen)//The original god process was not on the top when it was detected last time
                 {
                     Console.WriteLine("######################################################");
                     Console.WriteLine("Re-top");

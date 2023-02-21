@@ -64,7 +64,7 @@ namespace GenshinImpact.MonsterMap.Forms
         }
         private void btn_Open_Click(object sender, EventArgs e)
         {
-            if (DataInfo.YuanshenProcess != null || DataInfo.isUseFakePicture)
+            if (DataInfo.GenshinProcess != null || DataInfo.isUseFakePicture)
             {
                 isMapFormOpen = true;
                 mapForm = new MapForm();
@@ -108,10 +108,10 @@ namespace GenshinImpact.MonsterMap.Forms
             {
                 DataInfo.selectTags.Add(item.ToString());
             };
-            if (DataInfo.YuanshenProcess != null && cb_AutoLoadScreen.Checked)
+            if (DataInfo.GenshinProcess != null && cb_AutoLoadScreen.Checked)
             {
 
-                Win32Api.GetClientRect(DataInfo.YuanshenProcess.MainWindowHandle, out rect);
+                Win32Api.GetClientRect(DataInfo.GenshinProcess.MainWindowHandle, out rect);
                 DataInfo.width = rect.Right;
                 DataInfo.height = rect.Bottom;
                 game_width.Text = rect.Right + "";
