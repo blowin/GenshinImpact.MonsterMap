@@ -1,4 +1,4 @@
-﻿namespace GenshinImpact.MonsterMap.窗体
+﻿namespace GenshinImpact.MonsterMap.Forms
 {
     partial class Form1
     {
@@ -132,7 +132,7 @@
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage1.Size = new System.Drawing.Size(390, 221);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "筛选";
+            this.tabPage1.Text = "filter";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // btn_None
@@ -141,7 +141,7 @@
             this.btn_None.Name = "btn_None";
             this.btn_None.Size = new System.Drawing.Size(109, 23);
             this.btn_None.TabIndex = 10;
-            this.btn_None.Text = "取消全选";
+            this.btn_None.Text = "deselect all";
             this.btn_None.UseVisualStyleBackColor = true;
             this.btn_None.Click += new System.EventHandler(this.btn_None_Click);
             // 
@@ -151,7 +151,7 @@
             this.btn_All.Name = "btn_All";
             this.btn_All.Size = new System.Drawing.Size(75, 23);
             this.btn_All.TabIndex = 9;
-            this.btn_All.Text = "全选";
+            this.btn_All.Text = "select all";
             this.btn_All.UseVisualStyleBackColor = true;
             this.btn_All.Click += new System.EventHandler(this.btn_All_Click);
             // 
@@ -161,7 +161,7 @@
             this.btn__Boss.Name = "btn__Boss";
             this.btn__Boss.Size = new System.Drawing.Size(120, 23);
             this.btn__Boss.TabIndex = 8;
-            this.btn__Boss.Text = "Boss(锚点)";
+            this.btn__Boss.Text = "Boss(anchor point)";
             this.btn__Boss.UseVisualStyleBackColor = true;
             this.btn__Boss.Click += new System.EventHandler(this.btn__Boss_Click);
             // 
@@ -171,7 +171,7 @@
             this.btn_collection.Name = "btn_collection";
             this.btn_collection.Size = new System.Drawing.Size(75, 23);
             this.btn_collection.TabIndex = 7;
-            this.btn_collection.Text = "采集物";
+            this.btn_collection.Text = "Collection";
             this.btn_collection.UseVisualStyleBackColor = true;
             this.btn_collection.Click += new System.EventHandler(this.btn_collection_Click);
             // 
@@ -181,7 +181,7 @@
             this.btnMonster.Name = "btnMonster";
             this.btnMonster.Size = new System.Drawing.Size(75, 23);
             this.btnMonster.TabIndex = 6;
-            this.btnMonster.Text = "精英怪";
+            this.btnMonster.Text = "Elite monster";
             this.btnMonster.UseVisualStyleBackColor = true;
             this.btnMonster.Click += new System.EventHandler(this.btnMonster_Click);
             // 
@@ -223,7 +223,7 @@
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(390, 221);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "校准";
+            this.tabPage2.Text = "calibration";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // cb_AutoLoadScreen
@@ -235,7 +235,7 @@
             this.cb_AutoLoadScreen.Name = "cb_AutoLoadScreen";
             this.cb_AutoLoadScreen.Size = new System.Drawing.Size(134, 19);
             this.cb_AutoLoadScreen.TabIndex = 13;
-            this.cb_AutoLoadScreen.Text = "自动读取分辨率";
+            this.cb_AutoLoadScreen.Text = "Automatic reading resolution";
             this.cb_AutoLoadScreen.UseVisualStyleBackColor = true;
             // 
             // label3
@@ -245,7 +245,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(37, 15);
             this.label3.TabIndex = 12;
-            this.label3.Text = "偏移";
+            this.label3.Text = "offset";
             // 
             // label2
             // 
@@ -254,7 +254,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(37, 15);
             this.label2.TabIndex = 11;
-            this.label2.Text = "缩放";
+            this.label2.Text = "zoom";
             // 
             // V1
             // 
@@ -334,7 +334,7 @@
             this.btn_SetRect.Name = "btn_SetRect";
             this.btn_SetRect.Size = new System.Drawing.Size(114, 34);
             this.btn_SetRect.TabIndex = 7;
-            this.btn_SetRect.Text = "手动提交分辨率";
+            this.btn_SetRect.Text = "Submit resolution manually";
             this.btn_SetRect.UseVisualStyleBackColor = true;
             this.btn_SetRect.Click += new System.EventHandler(this.btn_SetRect_Click);
             // 
@@ -361,7 +361,7 @@
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(390, 221);
             this.tabPage3.TabIndex = 3;
-            this.tabPage3.Text = "采集测试";
+            this.tabPage3.Text = "acquisition test";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // splitContainer2
@@ -411,7 +411,7 @@
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(390, 221);
             this.tabPage4.TabIndex = 2;
-            this.tabPage4.Text = "更新";
+            this.tabPage4.Text = "renew";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // button1
@@ -420,7 +420,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(164, 53);
             this.button1.TabIndex = 3;
-            this.button1.Text = "访问原神Bwiki地图";
+            this.button1.Text = "Visit Genshin Bwiki Maps";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -431,7 +431,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(82, 15);
             this.label1.TabIndex = 2;
-            this.label1.Text = "请我吃雪糕";
+            this.label1.Text = "treat me to ice cream";
             // 
             // pictureBox1
             // 
@@ -449,14 +449,14 @@
             this.btn_github.Name = "btn_github";
             this.btn_github.Size = new System.Drawing.Size(164, 53);
             this.btn_github.TabIndex = 0;
-            this.btn_github.Text = "访问项目开源页面";
+            this.btn_github.Text = "Visit the project open source page";
             this.btn_github.UseVisualStyleBackColor = true;
             this.btn_github.Click += new System.EventHandler(this.btn_github_Click);
             // 
             // checkedListBox1
             // 
             this.checkedListBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.checkedListBox1.Font = new System.Drawing.Font("宋体", 12F);
+            this.checkedListBox1.Font = new System.Drawing.Font("Times New Roman", 12F);
             this.checkedListBox1.FormattingEnabled = true;
             this.checkedListBox1.Location = new System.Drawing.Point(0, 0);
             this.checkedListBox1.Name = "checkedListBox1";
@@ -474,7 +474,7 @@
             this.btn_update.Name = "btn_update";
             this.btn_update.Size = new System.Drawing.Size(90, 115);
             this.btn_update.TabIndex = 11;
-            this.btn_update.Text = "联网更新新坐标数据";
+            this.btn_update.Text = "Update new coordinate data online";
             this.btn_update.UseVisualStyleBackColor = true;
             this.btn_update.Click += new System.EventHandler(this.btn_update_Click);
             // 
@@ -485,7 +485,7 @@
             this.cb_ShowLine.Name = "cb_ShowLine";
             this.cb_ShowLine.Size = new System.Drawing.Size(104, 19);
             this.cb_ShowLine.TabIndex = 14;
-            this.cb_ShowLine.Text = "显示经纬线";
+            this.cb_ShowLine.Text = "show latitude and longitude";
             this.cb_ShowLine.UseVisualStyleBackColor = true;
             // 
             // Form1
@@ -495,7 +495,7 @@
             this.ClientSize = new System.Drawing.Size(398, 613);
             this.Controls.Add(this.splitContainer1);
             this.Name = "Form1";
-            this.Text = "原神雷达滤镜v1.0";
+            this.Text = "v1.0";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();

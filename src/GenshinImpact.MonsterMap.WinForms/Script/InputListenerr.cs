@@ -9,22 +9,22 @@ namespace GenshinImpact.MonsterMap.Script
     class InputListenerr
     {
         static bool isCtrlDown = false;
-        ///////////////////////////////////////////下面是看不懂的win API区域///////////////////////////////////////////////////
-        ///该类作用在于放在后台也能检测到键盘输入
+        ///////////////////////////////////////////The following is the win API area that I can't understand///////////////////////////////////////////////////
+        ///The role of this class is to detect keyboard input even in the background
         static WindowsHookCallBack k_callback;
-        ///该类作用在于放在后台也能检测到鼠标输入
+        ///The role of this class is to detect mouse input even in the background
         static WindowsHookCallBack m_callback;
         public static void GetKeyDownEvent(Action<string> response)
         {
             k_callback = CreateCallBack((status, data) =>
             {
-                if (data.vkCode == 162)//判断按下的是否是ctrl
+                if (data.vkCode == 162)//Determine if ctrl is pressed
                 {
                     isCtrlDown = status== KeyBoredHookStatus.WM_KEYDOWN; 
                 }
                 else if (status == KeyBoredHookStatus.WM_KEYDOWN)
                 {
-                    //代码
+                    //the code
                     if (data.vkCode==27)
                     {
                         response("esc");
@@ -64,10 +64,10 @@ namespace GenshinImpact.MonsterMap.Script
         [StructLayout(LayoutKind.Sequential)]
         public sealed class KeyBoredHookData
         {
-            //虚拟码
+            //virtual code
             public int vkCode;
 
-            //扫描码
+            //scan code
             public int scanCode;
             public int flags;
             public int time;
@@ -77,15 +77,15 @@ namespace GenshinImpact.MonsterMap.Script
 
         enum WindowsHookType
         {
-            //全局键盘钩子
+            //global keyboard hook
             WH_KEYBOARD_LL = 13,
 
-            //全局鼠标钩子
+            //global mouse hook
             WH_MOUSE_LL = 14,
         }
-        ///////////////////////////////////////////下面是看不懂的win API区域///////////////////////////////////////////////////
+        ///////////////////////////////////////////The following is the win API area that I can't understand///////////////////////////////////////////////////
 
-        //所有钩子函数的参数都一样，问题在于如何解释参数
+        //The parameters of all hook functions are the same, the problem is how to interpret the parameters
         delegate IntPtr WindowsHookCallBack(int nCode, int wParam, IntPtr lParam);
 
         [DllImport("User32.dll", SetLastError = true)]
@@ -94,7 +94,7 @@ namespace GenshinImpact.MonsterMap.Script
 
         [DllImport("User32.dll", SetLastError = true)]
         extern static IntPtr CallNextHookEx(int hhk, int nCode, int wParam, IntPtr lParam);
-        //这两种组合键，你自己可以改
+        //These two combination keys, you can change
         static WindowsHookCallBack CreateCallBack(Action<KeyBoredHookStatus, KeyBoredHookData> action)
         {
             return (int nCode, int wParam, IntPtr lParam) =>

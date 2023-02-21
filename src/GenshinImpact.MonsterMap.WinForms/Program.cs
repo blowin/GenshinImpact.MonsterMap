@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using GenshinImpact.MonsterMap.窗体;
-using OpenCvSharp;
+using GenshinImpact.MonsterMap.Forms;
 
 namespace GenshinImpact.MonsterMap
 {

@@ -14,7 +14,7 @@ namespace GenshinImpact.MonsterMap.Script
         public static int ToMapPosY(this int lat, Rectangle targetRect, Size size)
         {
             int y = (int)Math.Round((lat * DataInfo.PixelPerLat * 0.1f + DataInfo.LatBias));
-            //因为是wiki地图球所以要做一个直线到曲面的映射
+            //Because it is a wiki map ball, a mapping from a straight line to a curved surface is required
             var scale =lat==0?1: (lat * Math.PI) / (180 * Math.Sin(lat / 180 * Math.PI));
             y=(int)(y*scale);
             return (int)((y - targetRect.Y) * (size.Height * 1.0f / targetRect.Height));

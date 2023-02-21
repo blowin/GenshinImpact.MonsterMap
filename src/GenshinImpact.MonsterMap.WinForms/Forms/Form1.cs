@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Script;
 using static GenshinImpact.MonsterMap.Script.InfoModel;
 
-namespace GenshinImpact.MonsterMap.窗体
+namespace GenshinImpact.MonsterMap.Forms
 {
     public partial class Form1 : Form
     {
@@ -15,7 +15,7 @@ namespace GenshinImpact.MonsterMap.窗体
         public Form1()
         {
             InitializeComponent();
-            this.Text = "原神雷达滤镜v3.0";
+            this.Text = "Genshin Radar Filter v3.0";
             Win32Api.SetProcessDPIAware();
             DataInfo.LoadData();
             InputListenerr.GetMouseEvent((key) =>
@@ -51,7 +51,7 @@ namespace GenshinImpact.MonsterMap.窗体
             checkedListBox1.Items.AddRange(items);
             DataInfo.sampleImage = pictureSample;
             DataInfo.pointImage = picturePoint;
-            //控制地图校准系数
+            //Control map calibration factor
             string[] configs = File.ReadAllLines("config/bias.txt");
             U0.Text = configs[0];
             V0.Text = configs[1];
@@ -72,7 +72,7 @@ namespace GenshinImpact.MonsterMap.窗体
             }
             else
             {
-                MessageBox.Show("请先打开游戏");
+                MessageBox.Show("please open the game first");
             }
         }
         private void btn_Close_Click(object sender, EventArgs e)
@@ -123,7 +123,7 @@ namespace GenshinImpact.MonsterMap.窗体
         {
             if (U0.Value + V0.Value + U1.Value + V1.Value != 0)
             {
-                Console.WriteLine("修正映射参数");
+                Console.WriteLine("Fix mapping parameters");
                 DataInfo.PixelPerIng = (float)U0.Value;
                 DataInfo.PixelPerLat = (float)V0.Value;
                 DataInfo.IngBias = (float)U1.Value;

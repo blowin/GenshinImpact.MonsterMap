@@ -3,7 +3,7 @@
 namespace GenshinImpact.MonsterMap.Script
 {
     /// <summary>
-    /// 各模块运行时间打印计时类
+    /// The running time of each module prints the timing class
     /// </summary>
     class Timer
     {

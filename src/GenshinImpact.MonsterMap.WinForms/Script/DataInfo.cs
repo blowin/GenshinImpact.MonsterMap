@@ -21,8 +21,8 @@ namespace GenshinImpact.MonsterMap.Script
         public static Bitmap fakeMap = (Bitmap)Image.FromFile("img/fake.jpg");
         public static Bitmap gameMap;
         public static Bitmap dealMap;
-        public static PictureBox sampleImage;//来自游戏的采样截图
-        public static PictureBox pointImage;//特征点对比截图
+        public static PictureBox sampleImage; //Sample screenshots from the game
+        public static PictureBox pointImage; //Feature point comparison screenshot
         public static Pen redPen = new Pen(new SolidBrush(Color.Red));
         public static Pen whitePen = new Pen(new SolidBrush(Color.White));
         //校准
@@ -72,7 +72,7 @@ namespace GenshinImpact.MonsterMap.Script
             DownLoadPosInfo("game=ys&ts=1620198102608&markTypes=185%2C186%2C187%2C188%2C189%2C190%2C191%2C&sign=df8cc0589b0bbce76477d5326b424d81");//树木
             File.WriteAllText("config/IconPosition.txt", JsonConvert.SerializeObject(GetAllPos, Formatting.Indented));
             LoadData();
-            MessageBox.Show("更新完成");
+            MessageBox.Show("Update completed");
         }
         private static void DownLoadPosInfo(string cookie)
         {

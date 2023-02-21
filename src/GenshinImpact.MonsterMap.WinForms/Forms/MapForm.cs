@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Script;
 using Timer = GenshinImpact.MonsterMap.Script.Timer;
 
-namespace GenshinImpact.MonsterMap.窗体
+namespace GenshinImpact.MonsterMap.Forms
 {
     public partial class MapForm : Form
     {
@@ -20,8 +20,8 @@ namespace GenshinImpact.MonsterMap.窗体
                 if (!LastWindowIsYuanShen)//上次检测时原神进程不是置顶
                 {
                     Console.WriteLine("######################################################");
-                    Console.WriteLine("重新置顶");
-                    Win32Api.SetParent(Handle, DataInfo.hDeskTop);//置顶
+                    Console.WriteLine("Re-top");
+                    Win32Api.SetParent(Handle, DataInfo.hDeskTop);//top
                     Console.WriteLine("######################################################");
                 }
                 LastWindowIsYuanShen = true;
@@ -102,7 +102,7 @@ namespace GenshinImpact.MonsterMap.窗体
                             }
                             
                            
-                            Console.WriteLine("坐标绘制完成");
+                            Console.WriteLine("Coordinates drawn");
                             DataInfo.sampleImage.Image = DataInfo.gameMap;
                             DataInfo.pointImage.Image = DataInfo.dealMap;
                             Console.WriteLine(DataInfo.gameMap.Size);
@@ -112,7 +112,7 @@ namespace GenshinImpact.MonsterMap.窗体
                                 Invoke(refreshImage);
                             }
 
-                            Timer.Show("图片更新完毕");
+                            Timer.Show("The picture is updated");
                         }
                         catch (Exception e)
                         {

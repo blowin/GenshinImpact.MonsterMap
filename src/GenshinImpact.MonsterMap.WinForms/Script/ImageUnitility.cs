@@ -9,12 +9,12 @@ using OpenCvSharp.Features2D;
 namespace GenshinImpact.MonsterMap.Script
 {
     /// <summary>
-    /// 图片的匹配和截取工具类
+    /// Image matching and interception tools
     /// </summary>
     class ImageUnitility
     {
         /// <summary>
-        /// ///////////////////////////////////////////////对象对比检测
+        /// Object Contrast Detection
         /// </summary>
         static Mat matSrcRet = new Mat();
         static KeyPoint[] keyPointsSrc = null;
@@ -27,14 +27,18 @@ namespace GenshinImpact.MonsterMap.Script
             using (Mat matToRet = new Mat())
             {
                 Console.WriteLine("////////////////////////////////////////");
-                Timer.Show("开始分析");
+                Timer.Show("start analysis");
                 
                 using (var useMatch = useSift ? (Feature2D)SIFT.Create() : (Feature2D)OpenCvSharp.XFeatures2D.SURF.Create(400, 4, 3, true, true))
                 {
-                    if (keyPointsSrc == null) useMatch.DetectAndCompute(matSrc, null, out keyPointsSrc, matSrcRet);//仅在第一次载入大地图分析点
-                    Timer.Show("提取大地图特征点");
+                    if (keyPointsSrc == null)
+                    {
+                        //Analyze points only on the first load of the big map
+                        useMatch.DetectAndCompute(matSrc, null, out keyPointsSrc, matSrcRet);
+                    }
+                    Timer.Show("Extract large map feature points");
                     useMatch.DetectAndCompute(matTo, null, out keyPointsTo, matToRet);
-                    Timer.Show("提取游戏截图特征点");
+                    Timer.Show("Extract game screenshot feature points");
                 }
                 using (var bfMatcher = new BFMatcher())
                 {
@@ -44,7 +48,7 @@ namespace GenshinImpact.MonsterMap.Script
                     if (useSift)
                     {
                         var matches = bfMatcher.KnnMatch(matSrcRet, matToRet, k: 2);
-                        Timer.Show("对比特征点完毕");
+                        Timer.Show("Comparing feature points");
                         foreach (DMatch[] items in matches.Where(x => x.Length > 1))
                         {
                             if (items[0].Distance < 0.5 * items[1].Distance)
@@ -58,9 +62,9 @@ namespace GenshinImpact.MonsterMap.Script
                     else
                     {
                         var matches = bfMatcher.Match(matSrcRet, matToRet);
-                        Timer.Show("对比特征点完毕");
-                        //求最小最大距离
-                        double minDistance = 1000;//反向逼近
+                        Timer.Show("Comparing feature points");
+                        //Find the minimum and maximum distance
+                        double minDistance = 1000;//reverse approximation
                         double maxDistance = 0;
                         for (int i = 0; i < matSrcRet.Rows; i++)
                         {
@@ -90,12 +94,16 @@ namespace GenshinImpact.MonsterMap.Script
                     {
                         var pSrc = pointsSrc.ConvertAll(point => new Point2d((int)point.X, (int)point.Y));
                         var pDst = pointsDst.ConvertAll(point => new Point2d((int)point.X, (int)point.Y));
-                        // 如果原始的匹配结果为空, 则跳过过滤步骤
+                        // If the original matching result is empty, the filtering step is skipped
                         if (pSrc.Count > 4 && pDst.Count > 4)
                             Cv2.FindHomography(pSrc, pDst, HomographyMethods.Ransac, mask: outMask);
-                        Timer.Show("过滤完毕");
+                        Timer.Show("Filtered");
 
-                        // 如果通过RANSAC处理后的匹配点大于10个,才应用过滤. 否则使用原始的匹配点结果(匹配点过少的时候通过RANSAC处理后,可能会得到0个匹配点的结果).
+                        /*
+                         If the number of matching points processed by RANSAC is greater than 10, the filter is applied. Otherwise, 
+                         the original matching point result is used (when there are too few matching points processed by RANSAC, 
+                         the result of 0 matching points may be obtained).
+                         */
                         if (outMask.Rows > 10)
                         {
                             byte[] maskBytes = new byte[outMask.Rows * outMask.Cols];
@@ -118,11 +126,11 @@ namespace GenshinImpact.MonsterMap.Script
                         if (DataInfo.dealMap != null) DataInfo.dealMap.Dispose();
                         DataInfo.dealMap = BitmapConverter.ToBitmap(outMat);
                         outImage = DataInfo.dealMap;
-                        var pointOriginX_R = pointsSrc.OrderBy(point => point.X).FirstOrDefault();//原图最右侧的点
-                        var pointOriginX_L = pointsSrc.OrderByDescending(point => point.X).FirstOrDefault();//原图最左侧的点
+                        var pointOriginX_R = pointsSrc.OrderBy(point => point.X).FirstOrDefault();//The rightmost point of the original image
+                        var pointOriginX_L = pointsSrc.OrderByDescending(point => point.X).FirstOrDefault();//The leftmost point of the original image
 
-                        var pointTargetX_R = pointsDst.OrderBy(point => point.X).FirstOrDefault();//测试图最右侧的点
-                        var pointTargetX_L = pointsDst.OrderByDescending(point => point.X).FirstOrDefault();//测试图最左侧的点
+                        var pointTargetX_R = pointsDst.OrderBy(point => point.X).FirstOrDefault();//The point on the far right of the test graph
+                        var pointTargetX_L = pointsDst.OrderByDescending(point => point.X).FirstOrDefault();//The leftmost point of the test graph
 
                         float scaleX = (pointOriginX_R.X - pointOriginX_L.X) / (pointTargetX_R.X - pointTargetX_L.X);
                         float scaleY = (pointOriginX_R.Y - pointOriginX_L.Y) / (pointTargetX_R.Y - pointTargetX_L.Y);
@@ -138,7 +146,7 @@ namespace GenshinImpact.MonsterMap.Script
                         Timer.Show("变换坐标系");
                         return new Rectangle((int)rectBaisXL, (int)rectBaisYU, (int)(rectBaisXR - rectBaisXL), (int)(rectBaisYD - rectBaisYU));
                     }
-                    // 算法RANSAC对匹配的结果做过滤
+                    // Algorithm RANSAC filters the matching results
 
                 }
             }

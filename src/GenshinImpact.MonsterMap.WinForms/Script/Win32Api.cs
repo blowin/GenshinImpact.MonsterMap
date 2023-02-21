@@ -1,6 +1,4 @@
-﻿//using OpenCvSharp;
-
-using System;
+﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using static GenshinImpact.MonsterMap.Script.InfoModel;

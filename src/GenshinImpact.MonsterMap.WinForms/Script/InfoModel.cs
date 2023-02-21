@@ -7,10 +7,10 @@ namespace GenshinImpact.MonsterMap.Script
     {
         public struct RECT
         {
-            public int Left;                             //最左坐标
-            public int Top;                             //最上坐标
-            public int Right;                           //最右坐标
-            public int Bottom;                        //最下坐标
+            public int Left;                             //leftmost coordinate
+            public int Top;                             //top coordinate
+            public int Right;                           //rightmost coordinate
+            public int Bottom;                        //lowest coordinate
         }
         public struct WINDOWPLACEMENT
         {

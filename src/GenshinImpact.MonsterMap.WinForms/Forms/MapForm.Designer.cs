@@ -1,4 +1,4 @@
-﻿namespace GenshinImpact.MonsterMap.窗体
+﻿namespace GenshinImpact.MonsterMap.Forms
 {
     partial class MapForm
     {
