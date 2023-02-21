@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -89,10 +90,10 @@ namespace GenshinImpact.MonsterMap.Script
             request.AddHeader("Accept", "*/*");
             request.AddHeader("Referer", "https://wiki.biligame.com/ys/%E5%8E%9F%E7%A5%9E%E5%9C%B0%E5%9B%BE%E5%B7%A5%E5%85%B7_%E5%85%A8%E5%9C%B0%E6%A0%87%E4%BD%8D%E7%BD%AE%E7%82%B9");
             request.AddHeader("Connection", "keep-alive");
-            request.AddParameter("application/x-www-form-urlencoded; charset=UTF-8", cookie, ParameterType.RequestBody);
+            request.AddParameter("application/x-www-form-urlencoded", cookie, ParameterType.RequestBody);
             var response = client.Execute(request);
             var results = JsonConvert.DeserializeObject<InfoModel.DataModel>(response.Content);
-            GetAllPos.AddRange(results.data.Select(info => new InfoModel.Pos(info.icon, float.Parse(info.point.lng), float.Parse(info.point.lat))));
+            GetAllPos.AddRange(results.data.Select(info => new InfoModel.Pos(info.icon, float.Parse(info.point.lng, CultureInfo.InvariantCulture.NumberFormat), float.Parse(info.point.lat, CultureInfo.InvariantCulture.NumberFormat))));
         }
     }
 
