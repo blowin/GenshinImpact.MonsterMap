@@ -47,7 +47,7 @@ namespace GenshinImpact.MonsterMap.Forms
                 if (key == "esc") btn_Close_Click(null, null);
                 DataInfo.isDetection = true;
             });
-            var items = DataInfo.GetAllPos.Select(icon => icon.name).Distinct().ToArray();
+            var items = DataInfo.GetAllPos.Select(icon => icon.Name).Distinct().ToArray();
             checkedListBox1.Items.AddRange(items);
             DataInfo.sampleImage = pictureSample;
             DataInfo.pointImage = picturePoint;

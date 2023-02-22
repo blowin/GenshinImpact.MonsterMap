@@ -69,20 +69,20 @@ namespace GenshinImpact.MonsterMap.Forms
                             Bitmap imgSub = (Bitmap)DataInfo.gameMap.GetThumbnailImage(DataInfo.gameMap.Width / scaleSub, DataInfo.gameMap.Height / scaleSub, null, IntPtr.Zero);
                             var targetRect = ImageUnitility.MatchMap(imgSrc, imgSub, true, out Image outImage);
                             imgSub.Dispose();
-                            var activePos = DataInfo.GetAllPos.Where(pos => DataInfo.selectTags.Contains(pos.name)).ToList();
+                            var activePos = DataInfo.GetAllPos.Where(pos => DataInfo.selectTags.Contains(pos.Name)).ToList();
                             g.Clear(Color.Transparent);
                             if (!DataInfo.isPauseShowIcon)
                             {
                                 activePos.ForEach(pos =>
                                 {
-                                    int x = (int)((pos.x - targetRect.X) * (Size.Width * 1.0f / targetRect.Width));
-                                    int y = (int)((pos.y - targetRect.Y) * (Size.Height * 1.0f / targetRect.Height));
-                                    Bitmap icon = DataInfo.iconDict[pos.name];
+                                    int x = (int)((pos.GetX(DataInfo.PixelPerIng, DataInfo.IngBias) - targetRect.X) * (Size.Width * 1.0f / targetRect.Width));
+                                    int y = (int)((pos.GetY(DataInfo.PixelPerLat, DataInfo.LatBias) - targetRect.Y) * (Size.Height * 1.0f / targetRect.Height));
+                                    Bitmap icon = DataInfo.iconDict[pos.Name];
                                     if ((x - icon.Width / 2) > 0 && (y - icon.Height) > 0)
                                     {
                                         if ((x - icon.Width / 2) < DataInfo.width && (y - icon.Height) < DataInfo.height)
                                         {
-                                            g.DrawImage(DataInfo.iconDict[pos.name], new PointF(x - icon.Width / 2, y - icon.Height));
+                                            g.DrawImage(DataInfo.iconDict[pos.Name], new PointF(x - icon.Width / 2, y - icon.Height));
                                         }
                                     }
                                 });

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using GenshinImpact.MonsterMap.Domain;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -26,7 +27,7 @@ namespace GenshinImpact.MonsterMap.Script
         public static PictureBox pointImage; //Feature point comparison screenshot
         public static Pen redPen = new Pen(new SolidBrush(Color.Red));
         public static Pen whitePen = new Pen(new SolidBrush(Color.White));
-        //校准
+        //calibration
         public static float PixelPerIng = 0;
         public static float PixelPerLat = 0;
         public static float IngBias = 0;
@@ -37,7 +38,7 @@ namespace GenshinImpact.MonsterMap.Script
             get
             {
                 if(isUseFakePicture)
-                    return Process.GetProcessesByName("NotePad");
+                    return Process.GetProcessesByName("PhotosApp");
                 
                 return Process.GetProcessesByName("YuanShen")
                     .Concat(Process.GetProcessesByName("GenshinImpact"))
@@ -54,12 +55,12 @@ namespace GenshinImpact.MonsterMap.Script
         public static bool isShowLine = false;
         public static bool isPauseShowIcon = false;
         public static bool isMapFormClose = false;
-        public static bool isUseFakePicture = false;
+        public static bool isUseFakePicture = true;
         public static List<string> selectTags = new List<string>();
-        public static List<InfoModel.Pos> GetAllPos { get; set; } = new List<InfoModel.Pos>();
+        public static List<FileIcon> GetAllPos { get; set; } = new List<FileIcon>();
         public static void LoadData()
         {
-            GetAllPos = JsonConvert.DeserializeObject<List<InfoModel.Pos>>(File.ReadAllText("config/IconPosition.txt"));
+            GetAllPos = JsonConvert.DeserializeObject<List<FileIcon>>(File.ReadAllText("config/IconPosition.txt"));
             new DirectoryInfo("icon").GetFiles().ToList().ForEach(icon => { iconDict[icon.Name] = (Bitmap)Image.FromFile(icon.FullName); });
         }
         public static void UpadteData()
@@ -93,7 +94,7 @@ namespace GenshinImpact.MonsterMap.Script
             request.AddParameter("application/x-www-form-urlencoded", cookie, ParameterType.RequestBody);
             var response = client.Execute(request);
             var results = JsonConvert.DeserializeObject<InfoModel.DataModel>(response.Content);
-            GetAllPos.AddRange(results.data.Select(info => new InfoModel.Pos(info.icon, float.Parse(info.point.lng, CultureInfo.InvariantCulture.NumberFormat), float.Parse(info.point.lat, CultureInfo.InvariantCulture.NumberFormat))));
+            GetAllPos.AddRange(results.data.Select(info => new FileIcon(info.icon, float.Parse(info.point.lng, CultureInfo.InvariantCulture.NumberFormat), float.Parse(info.point.lat, CultureInfo.InvariantCulture.NumberFormat))));
         }
     }
 

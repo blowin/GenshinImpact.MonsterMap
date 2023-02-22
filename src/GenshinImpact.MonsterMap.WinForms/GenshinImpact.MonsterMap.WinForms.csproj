@@ -6,6 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <RootNamespace>GenshinImpact.MonsterMap</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -570,5 +571,8 @@
   </ItemGroup>
   <ItemGroup>
     <Page Remove="packages\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GenshinImpact.MonsterMap.Domain\GenshinImpact.MonsterMap.Domain.csproj" />
   </ItemGroup>
 </Project>

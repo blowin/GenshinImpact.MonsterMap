@@ -1,7 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
-
-namespace GenshinImpact.MonsterMap.Script
+﻿namespace GenshinImpact.MonsterMap.Script
 {
     public class InfoModel
     {
@@ -21,24 +18,7 @@ namespace GenshinImpact.MonsterMap.Script
             public System.Drawing.Point ptMaxPosition;
             public System.Drawing.Rectangle rcNormalPosition;
         }
-        public class Pos
-        {
-            public string name;
 
-            public float lng;
-            public float lat;
-            [JsonIgnore]
-            public int x => (int)Math.Round((lng * DataInfo.PixelPerIng * 0.1f + DataInfo.IngBias));
-            [JsonIgnore]                                               
-            public int y => (int)Math.Round((lat * DataInfo.PixelPerLat * 0.1f + DataInfo.LatBias));
-
-            public Pos(string name, float lng, float lat)
-            {
-                this.name = name;
-                this.lng = lng;
-                this.lat = lat;
-            }
-        }
         public class DataModel
         {
             public int code { get; set; }
@@ -63,5 +43,4 @@ namespace GenshinImpact.MonsterMap.Script
             }
         }
     }
-
 }
