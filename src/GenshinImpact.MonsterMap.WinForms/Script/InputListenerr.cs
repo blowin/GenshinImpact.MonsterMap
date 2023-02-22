@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace GenshinImpact.MonsterMap.Script
 {
     /// <summary>
-    /// 全局检测类
+    /// Global detection class
     /// </summary>
     class InputListenerr
     {

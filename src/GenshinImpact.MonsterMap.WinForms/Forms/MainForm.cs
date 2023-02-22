@@ -85,7 +85,7 @@ namespace GenshinImpact.MonsterMap.Forms
                 isMapFormOpen = false;
             }
         }
-        private void btn_update_Click(object sender, EventArgs e) => DataInfo.UpadteData();
+        private void btn_update_Click(object sender, EventArgs e) => DataInfo.UpdateData();
         private void btn__Boss_Click(object sender, EventArgs e) => Enumerable.Range(0, 8).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
         private void btnMonster_Click(object sender, EventArgs e) => Enumerable.Range(8, 15).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
         private void btn_collection_Click(object sender, EventArgs e) => Enumerable.Range(22, 19).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
