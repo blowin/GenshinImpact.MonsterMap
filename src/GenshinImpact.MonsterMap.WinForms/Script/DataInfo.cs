@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Domain.Api.Loaders;
@@ -26,11 +27,6 @@ namespace GenshinImpact.MonsterMap.Script
         public static PictureBox pointImage; //Feature point comparison screenshot
         public static Pen redPen = new Pen(new SolidBrush(Color.Red));
         public static Pen whitePen = new Pen(new SolidBrush(Color.White));
-        //calibration
-        public static float PixelPerIng = 0;
-        public static float PixelPerLat = 0;
-        public static float IngBias = 0;
-        public static float LatBias = 0;
         
         public static Process GenshinProcess => gameProcess.Any() ? gameProcess[0] : null;
         public static IntPtr mainHandle => GenshinProcess.MainWindowHandle;
@@ -42,22 +38,23 @@ namespace GenshinImpact.MonsterMap.Script
         public static bool isShowLine = false;
         public static bool isPauseShowIcon = false;
         public static bool isMapFormClose = false;
-        public static bool isUseFakePicture = true;
+        public static bool isUseFakePicture = false;
         public static List<string> selectTags = new List<string>();
         
         private static Process[] gameProcess
         {
             get
             {
-                if(isUseFakePicture)
-                    return Process.GetProcessesByName("PhotosApp");
-                
-                return Process.GetProcessesByName("YuanShen")
-                    .Concat(Process.GetProcessesByName("GenshinImpact"))
-                    .ToArray();
+                var value = MemoryCache.Default.Get("GameProcess") as Process[];
+                if (value != null)
+                    return value;
+
+                var process = FindGameProcess() ?? Array.Empty<Process>();
+                MemoryCache.Default.Add("GameProcess", process, DateTimeOffset.UtcNow.AddMilliseconds(500));
+                return process;
             }
         }
-
+        
         private static readonly IApiDataLoader ApiDataLoader = new PreparedApiDataLoader();
         public static List<FileIcon> GetAllPos { get; } = new();
         public static void LoadData()
@@ -79,6 +76,16 @@ namespace GenshinImpact.MonsterMap.Script
         {
             GetAllPos.Clear();
             GetAllPos.AddRange(newPositions);
+        }
+        
+        private static Process[] FindGameProcess()
+        {
+            if(isUseFakePicture)
+                return Process.GetProcessesByName("PhotosApp");
+                
+            return Process.GetProcessesByName("YuanShen")
+                .Concat(Process.GetProcessesByName("GenshinImpact"))
+                .ToArray();
         }
     }
 }

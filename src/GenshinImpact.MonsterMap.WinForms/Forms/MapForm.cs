@@ -1,17 +1,21 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Script;
 using Timer = GenshinImpact.MonsterMap.Script.Timer;
 
 namespace GenshinImpact.MonsterMap.Forms
 {
+    [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы")]
     public partial class MapForm : Form
     {
-
-        bool LastWindowIsYuanShen = false;
+        private FileSystemBias _bias;
+        private bool LastWindowIsYuanShen = false;
+        
         private void timer1_Tick(object sender, EventArgs e)
         {
             IntPtr ForegrouindWindow = Win32Api.GetForegroundWindow();
@@ -32,8 +36,9 @@ namespace GenshinImpact.MonsterMap.Forms
             }
         }
         public bool isJumpOutOfTask = false;
-        public MapForm()
+        public MapForm(FileSystemBias bias)
         {
+            _bias = bias;
             InitializeComponent();
             Graphics g = Graphics.FromImage(DataInfo.transparentMap);
 
@@ -75,8 +80,8 @@ namespace GenshinImpact.MonsterMap.Forms
                             {
                                 activePos.ForEach(pos =>
                                 {
-                                    int x = (int)((pos.GetX(DataInfo.PixelPerIng, DataInfo.IngBias) - targetRect.X) * (Size.Width * 1.0f / targetRect.Width));
-                                    int y = (int)((pos.GetY(DataInfo.PixelPerLat, DataInfo.LatBias) - targetRect.Y) * (Size.Height * 1.0f / targetRect.Height));
+                                    int x = (int)((pos.GetX(_bias.PixelPerIng, _bias.IngBias) - targetRect.X) * (Size.Width * 1.0f / targetRect.Width));
+                                    int y = (int)((pos.GetY(_bias.PixelPerLat, _bias.LatBias) - targetRect.Y) * (Size.Height * 1.0f / targetRect.Height));
                                     Bitmap icon = DataInfo.iconDict[pos.Name];
                                     if ((x - icon.Width / 2) > 0 && (y - icon.Height) > 0)
                                     {
@@ -90,14 +95,14 @@ namespace GenshinImpact.MonsterMap.Forms
                                 {
                                     for (int x = -100; x < 110; x += 10)
                                     {
-                                        g.DrawLine(DataInfo.whitePen, x.ToMapPosX(targetRect, Size), -100.ToMapPosY(targetRect, Size), x.ToMapPosX(targetRect, Size), 100.ToMapPosY(targetRect, Size));
+                                        g.DrawLine(DataInfo.whitePen, _bias.ToMapPosX(x, targetRect, Size), _bias.ToMapPosY(-100, targetRect, Size), _bias.ToMapPosX(x, targetRect, Size), _bias.ToMapPosY(100, targetRect, Size));
                                     }
                                     for (int y = -100; y < 110; y += 10)
                                     {
-                                        g.DrawLine(DataInfo.whitePen, -100.ToMapPosX(targetRect, Size), y.ToMapPosY(targetRect, Size), 100.ToMapPosX(targetRect, Size), y.ToMapPosY(targetRect, Size));
+                                        g.DrawLine(DataInfo.whitePen, _bias.ToMapPosX(-100, targetRect, Size), _bias.ToMapPosY(y, targetRect, Size), _bias.ToMapPosX(100, targetRect, Size), _bias.ToMapPosY(y, targetRect, Size));
                                     }
-                                    g.DrawLine(DataInfo.redPen, -100.ToMapPosX(targetRect, Size), 0.ToMapPosY(targetRect, Size), 100.ToMapPosX(targetRect, Size), 0.ToMapPosY(targetRect, Size));
-                                    g.DrawLine(DataInfo.redPen, 0.ToMapPosX(targetRect, Size), -100.ToMapPosY(targetRect, Size), 0.ToMapPosX(targetRect, Size), 100.ToMapPosY(targetRect, Size));
+                                    g.DrawLine(DataInfo.redPen, _bias.ToMapPosX(-100, targetRect, Size), _bias.ToMapPosY(0, targetRect, Size), _bias.ToMapPosX(100, targetRect, Size), _bias.ToMapPosY(0, targetRect, Size));
+                                    g.DrawLine(DataInfo.redPen, _bias.ToMapPosX(0, targetRect, Size), _bias.ToMapPosY(-100, targetRect, Size), _bias.ToMapPosX(0, targetRect, Size), _bias.ToMapPosY(100, targetRect, Size));
                                 }
                             }
                             

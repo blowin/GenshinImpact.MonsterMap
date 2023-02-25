@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29613.14
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenshinImpact.MonsterMap.WinForms", "GenshinImpact.MonsterMap.WinForms\GenshinImpact.MonsterMap.WinForms.csproj", "{16013FA7-8C10-4B9D-BD9C-4FBCC38E9660}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenshinImpact.MonsterMap.WinForms", "GenshinImpact.MonsterMap.WinForms\GenshinImpact.MonsterMap.WinForms.csproj", "{16013FA7-8C10-4B9D-BD9C-4FBCC38E9660}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenshinImpact.MonsterMap.Domain", "GenshinImpact.MonsterMap.Domain\GenshinImpact.MonsterMap.Domain.csproj", "{B3B47B2B-C1B2-47F3-BDBF-12DAD4698F9E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenshinImpact.MonsterMap.Domain", "GenshinImpact.MonsterMap.Domain\GenshinImpact.MonsterMap.Domain.csproj", "{B3B47B2B-C1B2-47F3-BDBF-12DAD4698F9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,6 +14,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{16013FA7-8C10-4B9D-BD9C-4FBCC38E9660}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16013FA7-8C10-4B9D-BD9C-4FBCC38E9660}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16013FA7-8C10-4B9D-BD9C-4FBCC38E9660}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B3B47B2B-C1B2-47F3-BDBF-12DAD4698F9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B3B47B2B-C1B2-47F3-BDBF-12DAD4698F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3B47B2B-C1B2-47F3-BDBF-12DAD4698F9E}.Release|Any CPU.ActiveCfg = Release|Any CPU

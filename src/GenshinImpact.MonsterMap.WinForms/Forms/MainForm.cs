@@ -1,23 +1,41 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Script;
 using static GenshinImpact.MonsterMap.Script.InfoModel;
 
 namespace GenshinImpact.MonsterMap.Forms
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
+        private readonly FileSystemBias _bias;
         static bool isMapFormOpen;
         MapForm mapForm;
-        public Form1()
+        
+        public MainForm()
         {
             InitializeComponent();
             this.Text = "Genshin Radar Filter v3.0";
+            _bias = new FileSystemBias("config/bias.txt");
+            Load += OnLoad;
+        }
+
+        private void OnLoad(object sender, EventArgs e)
+        {
             Win32Api.SetProcessDPIAware();
             DataInfo.LoadData();
+            var items = DataInfo.GetAllPos.Select(icon => icon.Name).Distinct().ToArray();
+            checkedListBox1.Items.AddRange(items);
+            DataInfo.sampleImage = pictureSample;
+            DataInfo.pointImage = picturePoint;
+            //Control map calibration factor
+            U0.Text = _bias.PixelPerIng;
+            V0.Text = _bias.PixelPerLat;
+            U1.Text = _bias.IngBias;
+            V1.Text = _bias.LatBias;
+            
             InputListenerr.GetMouseEvent((key) =>
             {
                 Console.WriteLine(key);
@@ -47,27 +65,14 @@ namespace GenshinImpact.MonsterMap.Forms
                 if (key == "esc") btn_Close_Click(null, null);
                 DataInfo.isDetection = true;
             });
-            var items = DataInfo.GetAllPos.Select(icon => icon.Name).Distinct().ToArray();
-            checkedListBox1.Items.AddRange(items);
-            DataInfo.sampleImage = pictureSample;
-            DataInfo.pointImage = picturePoint;
-            //Control map calibration factor
-            string[] configs = File.ReadAllLines("config/bias.txt");
-            U0.Text = configs[0];
-            V0.Text = configs[1];
-            U1.Text = configs[2];
-            V1.Text = configs[3];
-            DataInfo.PixelPerIng = float.Parse(File.ReadAllLines("config/bias.txt")[0]);
-            DataInfo.PixelPerLat = float.Parse(File.ReadAllLines("config/bias.txt")[1]);
-            DataInfo.IngBias = float.Parse(File.ReadAllLines("config/bias.txt")[2]);
-            DataInfo.LatBias = float.Parse(File.ReadAllLines("config/bias.txt")[3]);
         }
+
         private void btn_Open_Click(object sender, EventArgs e)
         {
             if (DataInfo.GenshinProcess != null || DataInfo.isUseFakePicture)
             {
                 isMapFormOpen = true;
-                mapForm = new MapForm();
+                mapForm = new MapForm(_bias);
                 mapForm.Show();
             }
             else
@@ -108,9 +113,9 @@ namespace GenshinImpact.MonsterMap.Forms
             {
                 DataInfo.selectTags.Add(item.ToString());
             };
+            
             if (DataInfo.GenshinProcess != null && cb_AutoLoadScreen.Checked)
             {
-
                 Win32Api.GetClientRect(DataInfo.GenshinProcess.MainWindowHandle, out rect);
                 DataInfo.width = rect.Right;
                 DataInfo.height = rect.Bottom;
@@ -121,28 +126,16 @@ namespace GenshinImpact.MonsterMap.Forms
 
         private void ValueChange(object sender, EventArgs e)
         {
-            if (U0.Value + V0.Value + U1.Value + V1.Value != 0)
-            {
-                Console.WriteLine("Fix mapping parameters");
-                DataInfo.PixelPerIng = (float)U0.Value;
-                DataInfo.PixelPerLat = (float)V0.Value;
-                DataInfo.IngBias = (float)U1.Value;
-                DataInfo.LatBias = (float)V1.Value;
-                File.WriteAllLines("config/bias.txt", new string[] {
-                DataInfo.PixelPerIng.ToString(),
-                DataInfo.PixelPerLat.ToString(),
-                DataInfo.IngBias.ToString(),
-                DataInfo.LatBias.ToString(),
-            });
-            }
-
+            /* TODO
+            if (U0.Value + V0.Value + U1.Value + V1.Value == 0) 
+                return;
+            Console.WriteLine("Fix mapping parameters");
+            
+            _bias.PixelPerIng = (float)U0.Value;
+            _bias.PixelPerLat = (float)V0.Value;
+            _bias.IngBias = (float)U1.Value;
+            _bias.LatBias = (float)V1.Value;
+            */
         }
-
-        private void V0_ValueChanged(object sender, EventArgs e) => File.WriteAllLines("config/bias.txt", new string[] { U0.Text, ((NumericUpDown)sender).Value.ToString(), U1.Text, V1.Text, });
-
-        private void U0_ValueChanged(object sender, EventArgs e) => File.WriteAllLines("config/bias.txt", new string[] { ((NumericUpDown)sender).Value.ToString(), V0.Text, U1.Text, V1.Text, });
-        private void U1_ValueChanged(object sender, EventArgs e) => File.WriteAllLines("config/bias.txt", new string[] { U0.Text, V0.Text, ((NumericUpDown)sender).Value.ToString(), V1.Text, });
-        private void V1_ValueChanged(object sender, EventArgs e) => File.WriteAllLines("config/bias.txt", new string[] { U0.Text, V0.Text, U1.Text, ((NumericUpDown)sender).Value.ToString(), });
-
     }
 }
