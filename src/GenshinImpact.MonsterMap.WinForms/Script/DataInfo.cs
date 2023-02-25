@@ -38,20 +38,19 @@ namespace GenshinImpact.MonsterMap.Script
         public static bool isShowLine = false;
         public static bool isPauseShowIcon = false;
         public static bool isMapFormClose = false;
-        public static bool isUseFakePicture = false;
+        public static bool isUseFakePicture = true;
         public static List<string> selectTags = new List<string>();
         
         private static Process[] gameProcess
         {
             get
             {
-                var value = MemoryCache.Default.Get("GameProcess") as Process[];
-                if (value != null)
-                    return value;
-
-                var process = FindGameProcess() ?? Array.Empty<Process>();
-                MemoryCache.Default.Add("GameProcess", process, DateTimeOffset.UtcNow.AddMilliseconds(500));
-                return process;
+                if(isUseFakePicture)
+                    return Process.GetProcessesByName("PhotosApp");
+                
+                return Process.GetProcessesByName("YuanShen")
+                    .Concat(Process.GetProcessesByName("GenshinImpact"))
+                    .ToArray();
             }
         }
         
@@ -76,16 +75,6 @@ namespace GenshinImpact.MonsterMap.Script
         {
             GetAllPos.Clear();
             GetAllPos.AddRange(newPositions);
-        }
-        
-        private static Process[] FindGameProcess()
-        {
-            if(isUseFakePicture)
-                return Process.GetProcessesByName("PhotosApp");
-                
-            return Process.GetProcessesByName("YuanShen")
-                .Concat(Process.GetProcessesByName("GenshinImpact"))
-                .ToArray();
         }
     }
 }

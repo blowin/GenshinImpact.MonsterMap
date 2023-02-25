@@ -1,29 +1,72 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Script;
-using static GenshinImpact.MonsterMap.Script.InfoModel;
+using SharpHook;
+using SharpHook.Native;
 
 namespace GenshinImpact.MonsterMap.Forms
 {
     public partial class MainForm : Form
     {
         private readonly FileSystemBias _bias;
-        static bool isMapFormOpen;
-        MapForm mapForm;
+        private MapForm _mapForm;
+        private CancellationTokenSource _cancellationTokenSource;
+        private TaskPoolGlobalHook _hooks;
+        // required!
+        private InfoModel.RECT rect = new();
         
         public MainForm()
         {
             InitializeComponent();
-            this.Text = "Genshin Radar Filter v3.0";
+            Text = "Genshin Radar Filter v3.0";
+            _hooks = new TaskPoolGlobalHook();
             _bias = new FileSystemBias("config/bias.txt");
+            _hooks.MousePressed += HooksOnMousePressed;
+            _hooks.MouseReleased += HooksOnMouseReleased;
+            _hooks.KeyPressed += HooksOnKeyPressed;
             Load += OnLoad;
         }
+        
+        private void HooksOnKeyPressed(object sender, KeyboardHookEventArgs e)
+        {
+            if (e.Data.KeyCode == KeyCode.VcM)
+            {
+                if (_mapForm != null)
+                {
+                    btn_Close_Click(null, null);
+                }
+                else
+                {
+                    btn_Open_Click(null, null);
+                }
+            }
 
+            if (e.Data.KeyCode == KeyCode.VcEscape)
+            {
+                btn_Close_Click(null, null);
+            }
+            DataInfo.isDetection = true;
+        }
+
+        private void HooksOnMousePressed(object sender, MouseHookEventArgs e)
+        {
+            DataInfo.isPauseShowIcon = true;
+            DataInfo.isDetection = true;
+        }
+
+        private void HooksOnMouseReleased(object sender, MouseHookEventArgs e)
+        {
+            DataInfo.isPauseShowIcon = false;
+            DataInfo.isDetection = true;
+        }
+        
         private void OnLoad(object sender, EventArgs e)
         {
+            _hooks.RunAsync();
             Win32Api.SetProcessDPIAware();
             DataInfo.LoadData();
             var items = DataInfo.GetAllPos.Select(icon => icon.Name).Distinct().ToArray();
@@ -35,45 +78,29 @@ namespace GenshinImpact.MonsterMap.Forms
             V0.Text = _bias.PixelPerLat;
             U1.Text = _bias.IngBias;
             V1.Text = _bias.LatBias;
-            
-            InputListenerr.GetMouseEvent((key) =>
-            {
-                Console.WriteLine(key);
-                if (key=="513")
-                {
-                    DataInfo.isPauseShowIcon = true;
-                }
-                if (key == "514")
-                {
-                    DataInfo.isPauseShowIcon = false;
-                }
-                DataInfo.isDetection = true;
-            });
-            InputListenerr.GetKeyDownEvent((key) =>
-            {
-                if (key == "M")
-                {
-                    if (isMapFormOpen)
-                    {
-                        btn_Close_Click(null, null);
-                    }
-                    else
-                    {
-                        btn_Open_Click(null, null);
-                    }
-                }
-                if (key == "esc") btn_Close_Click(null, null);
-                DataInfo.isDetection = true;
-            });
+        }
+
+        private void OpenUrl(string url)
+        {
+            using var process = new Process();
+            process.StartInfo.UseShellExecute = true;
+            process.StartInfo.FileName = url;
+            process.Start();
         }
 
         private void btn_Open_Click(object sender, EventArgs e)
         {
             if (DataInfo.GenshinProcess != null || DataInfo.isUseFakePicture)
             {
-                isMapFormOpen = true;
-                mapForm = new MapForm(_bias);
-                mapForm.Show();
+                if (_cancellationTokenSource != null)
+                {
+                    _cancellationTokenSource.Cancel();
+                    _cancellationTokenSource.Dispose();
+                }
+                
+                _cancellationTokenSource = new CancellationTokenSource();
+                _mapForm = new MapForm(_bias, _cancellationTokenSource.Token);
+                _mapForm.Show();
             }
             else
             {
@@ -82,13 +109,16 @@ namespace GenshinImpact.MonsterMap.Forms
         }
         private void btn_Close_Click(object sender, EventArgs e)
         {
-            if (mapForm != null)
-            {
-                mapForm.isJumpOutOfTask = true;
-                mapForm.Close();
-                mapForm.Dispose();
-                isMapFormOpen = false;
-            }
+            if (_mapForm == null) 
+                return;
+            
+            _cancellationTokenSource.Cancel();
+            _mapForm.isJumpOutOfTask = true;
+            _mapForm.Close();
+            _mapForm.Dispose();
+            _mapForm = null;
+            _cancellationTokenSource.Dispose();
+            _cancellationTokenSource = null;
         }
         private void btn_update_Click(object sender, EventArgs e) => DataInfo.UpdateData();
         private void btn__Boss_Click(object sender, EventArgs e) => Enumerable.Range(0, 8).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
@@ -96,15 +126,15 @@ namespace GenshinImpact.MonsterMap.Forms
         private void btn_collection_Click(object sender, EventArgs e) => Enumerable.Range(22, 19).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
         private void btn_All_Click(object sender, EventArgs e) => Enumerable.Range(0, checkedListBox1.Items.Count).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
         private void btn_None_Click(object sender, EventArgs e) => Enumerable.Range(0, checkedListBox1.Items.Count).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, false));
-        private void btn_github_Click(object sender, EventArgs e) => Process.Start("https://github.com/red-gezi/GenshinImpact_MonsterMap");
-        private void button1_Click(object sender, EventArgs e) => Process.Start("https://wiki.biligame.com/ys/%E5%8E%9F%E7%A5%9E%E5%9C%B0%E5%9B%BE%E5%B7%A5%E5%85%B7_%E5%85%A8%E5%9C%B0%E6%A0%87%E4%BD%8D%E7%BD%AE%E7%82%B9");
+
+        private void btn_github_Click(object sender, EventArgs e) => OpenUrl("https://github.com/blowin/GenshinImpact.MonsterMap");
+        private void button1_Click(object sender, EventArgs e) => OpenUrl("https://wiki.biligame.com/ys/%E5%8E%9F%E7%A5%9E%E5%9C%B0%E5%9B%BE%E5%B7%A5%E5%85%B7_%E5%85%A8%E5%9C%B0%E6%A0%87%E4%BD%8D%E7%BD%AE%E7%82%B9");
         private void btn_SetRect_Click(object sender, EventArgs e)
         {
             DataInfo.width = int.Parse(game_width.Text);
             DataInfo.height = int.Parse(game_height.Text);
         }
 
-        RECT rect = new RECT();
         private void timer1_Tick(object sender, EventArgs e)
         {
             DataInfo.isShowLine = cb_ShowLine.Checked;
