@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Domain.Api.Loaders;
@@ -15,12 +14,12 @@ namespace GenshinImpact.MonsterMap.Forms;
 public partial class MainForm : Form
 {
     private readonly FileSystemBias _bias;
+    private readonly TaskPoolGlobalHook _hooks;
+    private readonly IconPositionProvider _iconPositionProvider;
     private MapForm _mapForm;
-    private CancellationTokenSource _cancellationTokenSource;
-    private TaskPoolGlobalHook _hooks;
+    
     // required!
     private RECT rect = new();
-    private IconPositionProvider _iconPositionProvider;
 
     public MainForm()
     {
@@ -101,16 +100,12 @@ public partial class MainForm : Form
 
     private void btn_Open_Click(object sender, EventArgs e)
     {
-        if (DataInfo.GenshinProcess != null || DataInfo.isUseFakePicture)
+        if (DataInfo.GenshinProcess != null)
         {
-            if (_cancellationTokenSource != null)
-            {
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource.Dispose();
-            }
-                
-            _cancellationTokenSource = new CancellationTokenSource();
-            _mapForm = new MapForm(_bias, _iconPositionProvider, _cancellationTokenSource.Token);
+            if(_mapForm != null)
+                return;
+            
+            _mapForm = new MapForm(_bias, _iconPositionProvider);
             _mapForm.Show();
         }
         else
@@ -122,15 +117,12 @@ public partial class MainForm : Form
     {
         if (_mapForm == null) 
             return;
-            
-        _cancellationTokenSource.Cancel();
-        _mapForm.isJumpOutOfTask = true;
+        
         _mapForm.Close();
         _mapForm.Dispose();
         _mapForm = null;
-        _cancellationTokenSource.Dispose();
-        _cancellationTokenSource = null;
     }
+    
     private void btn_update_Click(object sender, EventArgs e) => _iconPositionProvider.UpdateData();
     private void btn__Boss_Click(object sender, EventArgs e) => Enumerable.Range(0, 8).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
     private void btnMonster_Click(object sender, EventArgs e) => Enumerable.Range(8, 15).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
@@ -154,10 +146,11 @@ public partial class MainForm : Form
         {
             DataInfo.selectTags.Add(item.ToString());
         };
-            
-        if (DataInfo.GenshinProcess != null && cb_AutoLoadScreen.Checked)
+
+        var handle = DataInfo.mainHandle ?? IntPtr.Zero;
+        if (handle != IntPtr.Zero && cb_AutoLoadScreen.Checked)
         {
-            Win32Api.GetClientRect(DataInfo.GenshinProcess.MainWindowHandle, out rect);
+            Win32Api.GetClientRect(handle, out rect);
             DataInfo.width = rect.Right;
             DataInfo.height = rect.Bottom;
             game_width.Text = rect.Right + "";

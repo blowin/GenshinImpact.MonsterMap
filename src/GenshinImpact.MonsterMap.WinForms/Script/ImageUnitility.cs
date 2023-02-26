@@ -5,6 +5,7 @@ using System.Linq;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using OpenCvSharp.Features2D;
+using Point = System.Drawing.Point;
 
 namespace GenshinImpact.MonsterMap.Script;
 
@@ -143,7 +144,7 @@ class ImageUnitility
 
                     float rectBaisYU = pointOriginX_R.Y - pointTargetX_R.Y * scaleY;
                     float rectBaisYD = pointOriginX_L.Y + (targetHeigh - pointTargetX_L.Y) * scaleY;
-                    Timer.Show("变换坐标系");
+                    Timer.Show("Transform coordinate system");
                     return new Rectangle((int)rectBaisXL, (int)rectBaisYU, (int)(rectBaisXR - rectBaisXL), (int)(rectBaisYD - rectBaisYU));
                 }
                 // Algorithm RANSAC filters the matching results
@@ -151,34 +152,31 @@ class ImageUnitility
             }
         }
     }
-    public static Bitmap GetScreenshot(IntPtr hWnd, int w, int h, int x, int y)
+    
+    public static Bitmap? GetScreenshot(IntPtr hWnd, Point point)
     {
-        IntPtr hscrdc = Win32Api.GetWindowDC(hWnd);
-        IntPtr hbitmap = Win32Api.CreateCompatibleBitmap(hscrdc, DataInfo.width + x, DataInfo.height + y);
-        IntPtr hmemdc = Win32Api.CreateCompatibleDC(hscrdc);
-        Win32Api.SelectObject(hmemdc, hbitmap);
-        Win32Api.PrintWindow(hWnd, hmemdc, 0);
-        Bitmap bmp = Image.FromHbitmap(hbitmap);
-        Win32Api.DeleteDC(hscrdc);
-        Win32Api.DeleteDC(hmemdc);
-        if (DataInfo.width>0&& DataInfo.height>0)
+        if (hWnd == IntPtr.Zero)
+            return null;
+        
+        var rectangle = new RECT();
+        Win32Api.GetWindowRect(hWnd, ref rectangle);
+        
+        int width = rectangle.Right - rectangle.Left;
+        int height = rectangle.Bottom - rectangle.Top;
+
+        if (width <= 0 || height <= 0)
         {
-            Bitmap clipBitamp = new Bitmap(DataInfo.width, DataInfo.height);
-            using (Graphics g = Graphics.FromImage(clipBitamp))
-            {
-                g.DrawImage(
-                    bmp,
-                    new Rectangle(0, 0, DataInfo.width, DataInfo.height),
-                    new Rectangle(x, y, DataInfo.width, DataInfo.height),
-                    GraphicsUnit.Pixel);
-            }
-            bmp.Dispose();
-            return clipBitamp;
+            return null;
         }
-        else
-        {
-            return new Bitmap(1, 1);
-        }
-           
+
+        var bmp = new Bitmap(width, height);
+        using var graphics = Graphics.FromImage(bmp);
+        graphics.DrawImage(
+            bmp,
+            new Rectangle(0, 0, width, height),
+            new Rectangle(point.X, point.Y, width, height),
+            GraphicsUnit.Pixel);
+        graphics.CopyFromScreen(new Point(rectangle.Left, rectangle.Top), Point.Empty, bmp.Size);
+        return bmp;  
     }
 }

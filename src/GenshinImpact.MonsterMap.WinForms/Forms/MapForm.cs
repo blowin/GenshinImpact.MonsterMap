@@ -1,13 +1,19 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
+using System.Windows;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Domain.Icons;
 using GenshinImpact.MonsterMap.Script;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
 using Timer = GenshinImpact.MonsterMap.Script.Timer;
 
 namespace GenshinImpact.MonsterMap.Forms;
@@ -15,43 +21,52 @@ namespace GenshinImpact.MonsterMap.Forms;
 [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы")]
 public partial class MapForm : Form
 {
-    private FileSystemBias _bias;
-    private bool LastWindowIsYuanShen = false;
+    private readonly FileSystemBias _bias;
+    private readonly System.Timers.Timer _timer;
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly Task _job;
+    
+    private bool _lastWindowIsYuanShen;
+    private bool _isJumpOutOfTask;
+    
+    public MapForm(FileSystemBias bias, IconPositionProvider iconPositionProvider)
+    {
+        _bias = bias;
+        _cancellationTokenSource = new CancellationTokenSource();
+        InitializeComponent();
         
-    private void timer1_Tick(object sender, EventArgs e)
+        Closing += OnClosing;
+        
+        Graphics g = Graphics.FromImage(DataInfo.transparentMap);
+        _job = Task.Run(async () => await RunMapJob(g, iconPositionProvider, _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+        _timer = new System.Timers.Timer(TimeSpan.FromMilliseconds(100));
+        _timer.Elapsed += TimerOnElapsed;
+        _timer.Start();
+    }
+    
+    private void TimerOnElapsed(object sender, ElapsedEventArgs e)
     {
         IntPtr ForegrouindWindow = Win32Api.GetForegroundWindow();
         if (ForegrouindWindow == DataInfo.mainHandle)//The current top is Genshin
         {
-            if (!LastWindowIsYuanShen)//The original god process was not on the top when it was detected last time
+            if (!_lastWindowIsYuanShen)//The original god process was not on the top when it was detected last time
             {
                 Console.WriteLine("######################################################");
                 Console.WriteLine("Re-top");
                 Win32Api.SetParent(Handle, DataInfo.hDeskTop);//top
                 Console.WriteLine("######################################################");
             }
-            LastWindowIsYuanShen = true;
+            _lastWindowIsYuanShen = true;
         }
         else
         {
-            LastWindowIsYuanShen = false;
+            _lastWindowIsYuanShen = false;
         }
-    }
-    
-    public bool isJumpOutOfTask = false;
-    
-    public MapForm(FileSystemBias bias, IconPositionProvider iconPositionProvider, CancellationToken cancellationToken)
-    {
-        _bias = bias;
-        InitializeComponent();
-        Graphics g = Graphics.FromImage(DataInfo.transparentMap);
-
-        Task.Run(async () => await RunMapJob(g, iconPositionProvider, cancellationToken), cancellationToken);
     }
 
     private async Task RunMapJob(Graphics g, IconPositionProvider iconPositionProvider, CancellationToken cancellationToken)
     {
-        while (!isJumpOutOfTask && !cancellationToken.IsCancellationRequested)
+        while (!_isJumpOutOfTask && !cancellationToken.IsCancellationRequested)
         {
             if (!DataInfo.isDetection || DataInfo.mainHandle == null)
             {
@@ -62,25 +77,25 @@ public partial class MapForm : Form
             DataInfo.isDetection = false;
             try
             {
-                Rectangle gameRect = new Rectangle();
-                Point gamePoint = new Point();
-                Win32Api.GetWindowRect(DataInfo.mainHandle.Value, ref gameRect);
-                Win32Api.ClientToScreen(DataInfo.mainHandle.Value, ref gamePoint);
+                var handle = DataInfo.mainHandle.Value;
+                var gamePoint = new Point();
+                Win32Api.ClientToScreen(handle, ref gamePoint);
 
                 Action changeSize = () => Size = new Size(DataInfo.width, DataInfo.height);
                 Invoke(changeSize);
 
                 Action changeLocation = () => Location = gamePoint;
                 Invoke(changeLocation);
-                DataInfo.gameMap = DataInfo.isUseFakePicture
-                    ? DataInfo.fakeMap
-                    : ImageUnitility.GetScreenshot(
-                        DataInfo.mainHandle.Value,
-                        gameRect.Right - gameRect.Left,
-                        gameRect.Bottom - gameRect.Top,
-                        gamePoint.X - gameRect.Left,
-                        gamePoint.Y - gameRect.Top
-                    );
+                
+                var currentGameMap = ImageUnitility.GetScreenshot(handle, gamePoint);
+                if (currentGameMap == null)
+                {
+                    await Task.Delay(100, cancellationToken);
+                    continue;
+                }
+                
+                DataInfo.gameMap = currentGameMap; 
+                
                 int scaleSrc = 1;
                 int scaleSub = 3;
                 Bitmap imgSrc = DataInfo.mainMap;
@@ -138,7 +153,7 @@ public partial class MapForm : Form
                 DataInfo.sampleImage.Image = DataInfo.gameMap;
                 DataInfo.pointImage.Image = DataInfo.dealMap;
                 Console.WriteLine(DataInfo.gameMap.Size);
-                if (!isJumpOutOfTask)
+                if (!_isJumpOutOfTask)
                 {
                     Action refreshImage = () => pictureBox1.Image = DataInfo.transparentMap;
                     Invoke(refreshImage);
@@ -154,5 +169,13 @@ public partial class MapForm : Form
 
             await Task.Delay(100, cancellationToken);
         }
+    }
+    
+    private void OnClosing(object sender, CancelEventArgs e)
+    {
+        _isJumpOutOfTask = true;
+        _timer.Dispose();
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
     }
 }

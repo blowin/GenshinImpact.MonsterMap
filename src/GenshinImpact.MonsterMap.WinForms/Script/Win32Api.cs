@@ -9,7 +9,7 @@ public partial class Win32Api
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool GetWindowRect(IntPtr hWnd, ref Rectangle lpRect);
+    public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
     [DllImport("user32")]
     public static extern bool GetClientRect(IntPtr hwnd, out RECT lpRect);
     [DllImport("user32 ")]
