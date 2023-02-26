@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using static GenshinImpact.MonsterMap.Script.InfoModel;
 
 namespace GenshinImpact.MonsterMap.Script
 {
@@ -35,5 +34,13 @@ namespace GenshinImpact.MonsterMap.Script
         public static extern bool PrintWindow(IntPtr hwnd, IntPtr hdcBlt, int nFlags);
         [DllImport("user32.dll")]
         public static extern IntPtr GetWindowDC(IntPtr hwnd);
+    }
+    
+    public struct RECT
+    {
+        public int Left;                             //leftmost coordinate
+        public int Top;                             //top coordinate
+        public int Right;                           //rightmost coordinate
+        public int Bottom;                        //lowest coordinate
     }
 }
