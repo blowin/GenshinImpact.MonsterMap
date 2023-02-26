@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using GenshinImpact.MonsterMap.Domain.Icons;
 
 namespace GenshinImpact.MonsterMap.Domain.Api;
 
@@ -24,11 +25,11 @@ public class GenshinApiData
             public string lat { get; set; }
         }
 
-        public FileIcon ToFileIcon()
+        public Icon ToFileIcon()
         {
             var lng = float.Parse(point.lng, CultureInfo.InvariantCulture.NumberFormat);
             var lat = float.Parse(point.lat, CultureInfo.InvariantCulture.NumberFormat);
-            return new FileIcon(icon, lng, lat);
+            return new Icon(icon, lng, lat);
         }
     }
 }

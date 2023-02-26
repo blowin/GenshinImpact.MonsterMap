@@ -1,13 +1,15 @@
-﻿namespace GenshinImpact.MonsterMap.Domain.Api.Loaders;
+﻿using GenshinImpact.MonsterMap.Domain.Icons;
+
+namespace GenshinImpact.MonsterMap.Domain.Api.Loaders;
 
 public sealed class CacheApiDataLoader : IApiDataLoader
 {
-    private readonly Lazy<FileIcon[]> _lazyLoad;
+    private readonly Lazy<Icon[]> _lazyLoad;
 
     public CacheApiDataLoader(IApiDataLoader root)
     {
-        _lazyLoad = new Lazy<FileIcon[]>(() => root.Load().ToArray());
+        _lazyLoad = new Lazy<Icon[]>(() => root.Load().ToArray());
     }
 
-    public IEnumerable<FileIcon> Load() => _lazyLoad.Value;
+    public IEnumerable<Icon> Load() => _lazyLoad.Value;
 }

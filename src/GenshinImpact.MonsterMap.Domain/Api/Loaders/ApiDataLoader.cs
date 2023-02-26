@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using GenshinImpact.MonsterMap.Domain.Icons;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace GenshinImpact.MonsterMap.Domain.Api.Loaders;
@@ -13,7 +14,7 @@ public sealed class ApiDataLoader : IApiDataLoader
         _cookie = cookie;
     }
 
-    public IEnumerable<FileIcon> Load()
+    public IEnumerable<Icon> Load()
     {
         var response = Execute(_cookie);
         if (response?.Content == null)

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
+using GenshinImpact.MonsterMap.Domain.Icons;
 using GenshinImpact.MonsterMap.Script;
 using Timer = GenshinImpact.MonsterMap.Script.Timer;
 
@@ -36,21 +37,23 @@ public partial class MapForm : Form
             LastWindowIsYuanShen = false;
         }
     }
+    
     public bool isJumpOutOfTask = false;
-    public MapForm(FileSystemBias bias, CancellationToken cancellationToken)
+    
+    public MapForm(FileSystemBias bias, IconPositionProvider iconPositionProvider, CancellationToken cancellationToken)
     {
         _bias = bias;
         InitializeComponent();
         Graphics g = Graphics.FromImage(DataInfo.transparentMap);
 
-        Task.Run(async () => await RunMapJob(g, cancellationToken), cancellationToken);
+        Task.Run(async () => await RunMapJob(g, iconPositionProvider, cancellationToken), cancellationToken);
     }
 
-    private async Task RunMapJob(Graphics g, CancellationToken cancellationToken)
+    private async Task RunMapJob(Graphics g, IconPositionProvider iconPositionProvider, CancellationToken cancellationToken)
     {
         while (!isJumpOutOfTask && !cancellationToken.IsCancellationRequested)
         {
-            if (!DataInfo.isDetection)
+            if (!DataInfo.isDetection || DataInfo.mainHandle == null)
             {
                 await Task.Delay(100, cancellationToken);
                 continue;
@@ -61,8 +64,8 @@ public partial class MapForm : Form
             {
                 Rectangle gameRect = new Rectangle();
                 Point gamePoint = new Point();
-                Win32Api.GetWindowRect(DataInfo.mainHandle, ref gameRect);
-                Win32Api.ClientToScreen(DataInfo.mainHandle, ref gamePoint);
+                Win32Api.GetWindowRect(DataInfo.mainHandle.Value, ref gameRect);
+                Win32Api.ClientToScreen(DataInfo.mainHandle.Value, ref gamePoint);
 
                 Action changeSize = () => Size = new Size(DataInfo.width, DataInfo.height);
                 Invoke(changeSize);
@@ -72,7 +75,7 @@ public partial class MapForm : Form
                 DataInfo.gameMap = DataInfo.isUseFakePicture
                     ? DataInfo.fakeMap
                     : ImageUnitility.GetScreenshot(
-                        DataInfo.mainHandle,
+                        DataInfo.mainHandle.Value,
                         gameRect.Right - gameRect.Left,
                         gameRect.Bottom - gameRect.Top,
                         gamePoint.X - gameRect.Left,
@@ -85,8 +88,7 @@ public partial class MapForm : Form
                     DataInfo.gameMap.Height / scaleSub, null, IntPtr.Zero);
                 var targetRect = ImageUnitility.MatchMap(imgSrc, imgSub, true, out Image outImage);
                 imgSub.Dispose();
-                var activePos = DataInfo.GetAllPos.Where(pos => DataInfo.selectTags.Contains(pos.Name))
-                    .ToList();
+                var activePos = iconPositionProvider.GetIcons(DataInfo.selectTags).ToList();
                 g.Clear(Color.Transparent);
                 if (!DataInfo.isPauseShowIcon)
                 {

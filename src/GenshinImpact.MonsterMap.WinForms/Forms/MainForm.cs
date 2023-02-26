@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
+using GenshinImpact.MonsterMap.Domain.Api.Loaders;
+using GenshinImpact.MonsterMap.Domain.Icons;
 using GenshinImpact.MonsterMap.Script;
 using SharpHook;
 using SharpHook.Native;
@@ -17,20 +19,29 @@ public partial class MainForm : Form
     private CancellationTokenSource _cancellationTokenSource;
     private TaskPoolGlobalHook _hooks;
     // required!
-    private InfoModel.RECT rect = new();
-        
+    private RECT rect = new();
+    private IconPositionProvider _iconPositionProvider;
+
     public MainForm()
     {
         InitializeComponent();
         Text = "Genshin Radar Filter v3.0";
         _hooks = new TaskPoolGlobalHook();
         _bias = new FileSystemBias("config/bias.txt");
+        _iconPositionProvider = new IconPositionProvider(new PreparedApiDataLoader(), "config/IconPosition.txt");
         _hooks.MousePressed += HooksOnMousePressed;
         _hooks.MouseReleased += HooksOnMouseReleased;
         _hooks.KeyPressed += HooksOnKeyPressed;
         Load += OnLoad;
+        Closed += OnClosed;
     }
-        
+
+    private void OnClosed(object sender, EventArgs e)
+    {
+        _hooks.Dispose();
+        btn_Close_Click(this, EventArgs.Empty);
+    }
+
     private void HooksOnKeyPressed(object sender, KeyboardHookEventArgs e)
     {
         if (e.Data.KeyCode == KeyCode.VcM)
@@ -69,7 +80,7 @@ public partial class MainForm : Form
         _hooks.RunAsync();
         Win32Api.SetProcessDPIAware();
         DataInfo.LoadData();
-        var items = DataInfo.GetAllPos.Select(icon => icon.Name).Distinct().ToArray();
+        var items = _iconPositionProvider.GetIconNames();
         checkedListBox1.Items.AddRange(items);
         DataInfo.sampleImage = pictureSample;
         DataInfo.pointImage = picturePoint;
@@ -99,7 +110,7 @@ public partial class MainForm : Form
             }
                 
             _cancellationTokenSource = new CancellationTokenSource();
-            _mapForm = new MapForm(_bias, _cancellationTokenSource.Token);
+            _mapForm = new MapForm(_bias, _iconPositionProvider, _cancellationTokenSource.Token);
             _mapForm.Show();
         }
         else
@@ -120,7 +131,7 @@ public partial class MainForm : Form
         _cancellationTokenSource.Dispose();
         _cancellationTokenSource = null;
     }
-    private void btn_update_Click(object sender, EventArgs e) => DataInfo.UpdateData();
+    private void btn_update_Click(object sender, EventArgs e) => _iconPositionProvider.UpdateData();
     private void btn__Boss_Click(object sender, EventArgs e) => Enumerable.Range(0, 8).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
     private void btnMonster_Click(object sender, EventArgs e) => Enumerable.Range(8, 15).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
     private void btn_collection_Click(object sender, EventArgs e) => Enumerable.Range(22, 19).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));

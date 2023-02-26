@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace GenshinImpact.MonsterMap.Domain;
+namespace GenshinImpact.MonsterMap.Domain.Icons;
 
-public class FileIcon
+public class Icon
 {
     [JsonProperty("name")]
     public string Name { get; private set; }
@@ -13,7 +13,7 @@ public class FileIcon
     [JsonProperty("lat")]
     public float Lat { get; private set; }
  
-    public FileIcon(string name, float lng, float lat)
+    public Icon(string name, float lng, float lat)
     {
         Name = name;
         Lng = lng;
