@@ -105,7 +105,11 @@ public partial class MainForm : Form
             if(_mapForm != null)
                 return;
             
-            _mapForm = new MapForm(_bias, _iconPositionProvider);
+            _mapForm = new MapForm(_bias, () =>
+            {
+                var selectedTags = checkedListBox1.CheckedItems.Cast<object>().Select(e => e.ToString());
+                return _iconPositionProvider.GetIcons(selectedTags);
+            });
             _mapForm.Show();
         }
         else
@@ -141,12 +145,6 @@ public partial class MainForm : Form
     private void timer1_Tick(object sender, EventArgs e)
     {
         DataInfo.isShowLine = cb_ShowLine.Checked;
-        DataInfo.selectTags.Clear();
-        foreach (var item in checkedListBox1.CheckedItems)
-        {
-            DataInfo.selectTags.Add(item.ToString());
-        };
-
         var handle = DataInfo.mainHandle;
         if (handle != IntPtr.Zero && cb_AutoLoadScreen.Checked)
         {

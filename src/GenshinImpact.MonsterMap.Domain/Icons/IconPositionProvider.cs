@@ -19,19 +19,30 @@ public class IconPositionProvider
         _iconPositionPath = iconPositionPath;
         _apiDataLoader = apiDataLoader;
 
-        var filePositions = JsonSerializer.Deserialize<List<Icon>>(File.ReadAllText(iconPositionPath));
-        if(filePositions != null)
-            ReplacePositions(filePositions);
+        var filePositions = JsonSerializer.Deserialize<List<Icon>>(File.ReadAllText(iconPositionPath)) ?? new List<Icon>();
+        ReplacePositions(filePositions);
     }
 
-    private List<Icon> GetAllPos { get; } = new();
+    private ILookup<string, Icon> GetAllPos { get; set; }
 
     public string[] GetIconNames()
     {
-        return GetAllPos.Select(e => e.Name).Distinct().ToArray();
+        return GetAllPos.Select(e => e.Key).ToArray();
     }
 
-    public IEnumerable<Icon> GetIcons(ICollection<string> names) => GetAllPos.Where(pos => names.Contains(pos.Name));
+    public IEnumerable<Icon> GetIcons(IEnumerable<string> names)
+    {
+        foreach (var name in names)
+        {
+            if (!GetAllPos.Contains(name)) 
+                continue;
+
+            foreach (var icon in GetAllPos[name])
+            {
+                yield return icon;
+            }
+        }
+    }
 
     public void UpdateData()
     {
@@ -42,7 +53,6 @@ public class IconPositionProvider
 
     private void ReplacePositions(ICollection<Icon> newPositions)
     {
-        GetAllPos.Clear();
-        GetAllPos.AddRange(newPositions);
+        GetAllPos = newPositions.ToLookup(e => e.Name);
     }
 }

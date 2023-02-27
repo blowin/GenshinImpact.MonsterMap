@@ -69,7 +69,6 @@ class DataInfo
     public static bool isShowLine = false;
     public static bool isPauseShowIcon = false;
     public static bool isMapFormClose = false;
-    public static List<string> selectTags = new List<string>();
         
     private static Process[] gameProcess
     {

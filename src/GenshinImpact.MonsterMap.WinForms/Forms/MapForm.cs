@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
@@ -12,6 +13,7 @@ using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Domain.Icons;
 using GenshinImpact.MonsterMap.Script;
+using Icon = GenshinImpact.MonsterMap.Domain.Icons.Icon;
 using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
 using Timer = GenshinImpact.MonsterMap.Script.Timer;
@@ -29,7 +31,7 @@ public partial class MapForm : Form
     private bool _lastWindowIsYuanShen;
     private bool _isJumpOutOfTask;
     
-    public MapForm(FileSystemBias bias, IconPositionProvider iconPositionProvider)
+    public MapForm(FileSystemBias bias, Func<IEnumerable<Icon>> iconLoader)
     {
         _bias = bias;
         _cancellationTokenSource = new CancellationTokenSource();
@@ -38,7 +40,7 @@ public partial class MapForm : Form
         Closing += OnClosing;
         
         Graphics g = Graphics.FromImage(DataInfo.transparentMap);
-        _job = Task.Run(async () => await RunMapJob(g, iconPositionProvider, _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+        _job = Task.Run(async () => await RunMapJob(g, iconLoader, _cancellationTokenSource.Token), _cancellationTokenSource.Token);
         _timer = new System.Timers.Timer(TimeSpan.FromMilliseconds(100));
         _timer.Elapsed += TimerOnElapsed;
         _timer.Start();
@@ -64,7 +66,7 @@ public partial class MapForm : Form
         }
     }
 
-    private async Task RunMapJob(Graphics g, IconPositionProvider iconPositionProvider, CancellationToken cancellationToken)
+    private async Task RunMapJob(Graphics g, Func<IEnumerable<Icon>> iconLoader, CancellationToken cancellationToken)
     {
         while (!_isJumpOutOfTask && !cancellationToken.IsCancellationRequested)
         {
@@ -103,11 +105,11 @@ public partial class MapForm : Form
                     DataInfo.gameMap.Height / scaleSub, null, IntPtr.Zero);
                 var targetRect = ImageUnitility.MatchMap(imgSrc, imgSub, true, out Image outImage);
                 imgSub.Dispose();
-                var activePos = iconPositionProvider.GetIcons(DataInfo.selectTags).ToList();
+
                 g.Clear(Color.Transparent);
                 if (!DataInfo.isPauseShowIcon)
                 {
-                    activePos.ForEach(pos =>
+                    foreach (var pos in iconLoader())
                     {
                         int x = (int)((pos.GetX(_bias.PixelPerIng, _bias.IngBias) - targetRect.X) *
                                       (Size.Width * 1.0f / targetRect.Width));
@@ -122,7 +124,8 @@ public partial class MapForm : Form
                                     new PointF(x - icon.Width / 2, y - icon.Height));
                             }
                         }
-                    });
+                    }
+               
                     if (DataInfo.isShowLine)
                     {
                         for (int x = -100; x < 110; x += 10)
