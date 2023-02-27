@@ -1,5 +1,5 @@
-﻿using GenshinImpact.MonsterMap.Domain.Icons;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
+using GenshinImpact.MonsterMap.Domain.Icons;
 using RestSharp;
 
 namespace GenshinImpact.MonsterMap.Domain.Api.Loaders;
@@ -20,7 +20,7 @@ public sealed class ApiDataLoader : IApiDataLoader
         if (response?.Content == null)
             throw new InvalidOperationException($"Can't extract api data for \'{_cookie}\'");
         
-        var results = JsonConvert.DeserializeObject<GenshinApiData>(response.Content);
+        var results = JsonSerializer.Deserialize<GenshinApiData>(response.Content);
         if(results?.data == null)
             throw new InvalidOperationException($"Result from api should not be empty for \'{_cookie}\'");
         

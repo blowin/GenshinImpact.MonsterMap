@@ -1,19 +1,25 @@
-﻿using GenshinImpact.MonsterMap.Domain.Api.Loaders;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
+using System.Xml;
+using GenshinImpact.MonsterMap.Domain.Api.Loaders;
 
 namespace GenshinImpact.MonsterMap.Domain.Icons;
 
 public class IconPositionProvider
 {
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        WriteIndented = true
+    };
+    
     private readonly IApiDataLoader _apiDataLoader;
     private readonly string _iconPositionPath;
-
+    
     public IconPositionProvider(IApiDataLoader apiDataLoader, string iconPositionPath)
     {
         _iconPositionPath = iconPositionPath;
         _apiDataLoader = apiDataLoader;
 
-        var filePositions = JsonConvert.DeserializeObject<List<Icon>>(File.ReadAllText(iconPositionPath));
+        var filePositions = JsonSerializer.Deserialize<List<Icon>>(File.ReadAllText(iconPositionPath));
         if(filePositions != null)
             ReplacePositions(filePositions);
     }
@@ -31,7 +37,7 @@ public class IconPositionProvider
     {
         var newPositions = _apiDataLoader.Load().ToList();
         ReplacePositions(newPositions);
-        File.WriteAllText(_iconPositionPath, JsonConvert.SerializeObject(GetAllPos, Formatting.Indented));
+        File.WriteAllText(_iconPositionPath, JsonSerializer.Serialize(GetAllPos, JsonSerializerOptions));
     }
 
     private void ReplacePositions(ICollection<Icon> newPositions)

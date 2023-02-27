@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace GenshinImpact.MonsterMap.Domain.Icons;
 
 public class Icon
 {
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string Name { get; private set; }
 
-    [JsonProperty("lng")]
+    [JsonPropertyName("lng")]
     public float Lng { get; private set; }
     
-    [JsonProperty("lat")]
+    [JsonPropertyName("lat")]
     public float Lat { get; private set; }
  
     public Icon(string name, float lng, float lat)
