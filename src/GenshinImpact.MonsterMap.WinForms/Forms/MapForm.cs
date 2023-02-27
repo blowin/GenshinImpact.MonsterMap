@@ -68,7 +68,8 @@ public partial class MapForm : Form
     {
         while (!_isJumpOutOfTask && !cancellationToken.IsCancellationRequested)
         {
-            if (!DataInfo.isDetection || DataInfo.mainHandle == null)
+            var handle = DataInfo.mainHandle;
+            if (!DataInfo.isDetection || handle == IntPtr.Zero)
             {
                 await Task.Delay(100, cancellationToken);
                 continue;
@@ -77,7 +78,6 @@ public partial class MapForm : Form
             DataInfo.isDetection = false;
             try
             {
-                var handle = DataInfo.mainHandle.Value;
                 var gamePoint = new Point();
                 Win32Api.ClientToScreen(handle, ref gamePoint);
 

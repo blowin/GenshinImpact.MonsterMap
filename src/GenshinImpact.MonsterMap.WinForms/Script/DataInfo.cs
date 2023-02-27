@@ -15,7 +15,6 @@ namespace GenshinImpact.MonsterMap.Script;
 /// </summary>
 class DataInfo
 {
-    private static bool isUseFakePicture = true;
     
     public static Dictionary<string, Bitmap> iconDict = new();
     public static Bitmap mainMap = (Bitmap)Image.FromFile("img/MainMap.jpg");
@@ -27,29 +26,35 @@ class DataInfo
     public static PictureBox pointImage; //Feature point comparison screenshot
     public static Pen redPen = new Pen(new SolidBrush(Color.Red));
     public static Pen whitePen = new Pen(new SolidBrush(Color.White));
-        
-    public static Process GenshinProcess => gameProcess.Any() ? gameProcess[0] : null;
 
-    public static IntPtr? mainHandle
+    public static IntPtr mainHandle
     {
         get
         {
             // HACK: TODO
+            var process = GenshinProcess;
+            
             const string key = "MAIN_HANDLE";
-            if (GenshinProcess == null)
+            if (process == null || process.HasExited)
             {
                 MemoryCache.Default.Remove(key);
-                return null;
+                return IntPtr.Zero;
             }
             
             var cacheHandle = MemoryCache.Default.Get(key);
             if (cacheHandle == null)
             {
-                var handle = GenshinProcess?.MainWindowHandle;
-                if (handle == null || handle == IntPtr.Zero)
-                    return handle;
+                var handle = process.MainWindowHandle;
+                if (handle == IntPtr.Zero)
+                {
+                    process.Refresh();
+                    handle = process.MainWindowHandle;
+                }
 
-                MemoryCache.Default.Add(key, handle.Value, DateTimeOffset.MaxValue);
+                if (handle == IntPtr.Zero)
+                    return IntPtr.Zero;
+
+                MemoryCache.Default.Add(key, handle, DateTimeOffset.MaxValue);
                 return handle;
             }
 
@@ -78,6 +83,10 @@ class DataInfo
                 .ToArray();
         }
     }
+        
+    private static bool isUseFakePicture = true;
+    
+    private static Process GenshinProcess => gameProcess.Any() ? gameProcess[0] : null;
 
     public static void LoadData()
     {

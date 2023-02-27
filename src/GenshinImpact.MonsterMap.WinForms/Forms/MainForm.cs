@@ -100,7 +100,7 @@ public partial class MainForm : Form
 
     private void btn_Open_Click(object sender, EventArgs e)
     {
-        if (DataInfo.GenshinProcess != null)
+        if (DataInfo.mainHandle != IntPtr.Zero)
         {
             if(_mapForm != null)
                 return;
@@ -147,7 +147,7 @@ public partial class MainForm : Form
             DataInfo.selectTags.Add(item.ToString());
         };
 
-        var handle = DataInfo.mainHandle ?? IntPtr.Zero;
+        var handle = DataInfo.mainHandle;
         if (handle != IntPtr.Zero && cb_AutoLoadScreen.Checked)
         {
             Win32Api.GetClientRect(handle, out rect);
