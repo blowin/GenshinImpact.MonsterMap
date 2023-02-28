@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Domain.Api.Loaders;
+using GenshinImpact.MonsterMap.Domain.GameProcesses.GameProcessProviders;
 using GenshinImpact.MonsterMap.Domain.Icons;
 using GenshinImpact.MonsterMap.Script;
 using SharpHook;
@@ -13,6 +14,7 @@ namespace GenshinImpact.MonsterMap.Forms;
 
 public partial class MainForm : Form
 {
+    private readonly IGameProcessProvider _gameProcessProvider;
     private readonly FileSystemBias _bias;
     private readonly TaskPoolGlobalHook _hooks;
     private readonly IconPositionProvider _iconPositionProvider;
@@ -25,6 +27,7 @@ public partial class MainForm : Form
     {
         InitializeComponent();
         Text = "Genshin Radar Filter v3.0";
+        _gameProcessProvider = CreateGameProcessProvider();
         _hooks = new TaskPoolGlobalHook();
         _bias = new FileSystemBias("config/bias.txt");
         _iconPositionProvider = new IconPositionProvider(new PreparedApiDataLoader(), "config/IconPosition.txt");
@@ -34,7 +37,16 @@ public partial class MainForm : Form
         Load += OnLoad;
         Closed += OnClosed;
     }
-
+    
+    private IGameProcessProvider CreateGameProcessProvider()
+    {
+        const bool IsUseFakePicture = true;
+        if(IsUseFakePicture)
+            return new CacheGameProcess(new GameProcessProvider("PhotosApp"));
+                
+        return new CacheGameProcess(new GameProcessProvider("GenshinImpact"));
+    }
+    
     private void OnClosed(object sender, EventArgs e)
     {
         _hooks.Dispose();
@@ -98,12 +110,13 @@ public partial class MainForm : Form
 
     private void btn_Open_Click(object sender, EventArgs e)
     {
-        if (DataInfo.GenshinMainHandle != IntPtr.Zero)
+        var process = _gameProcessProvider.GetProcess();
+        if (process.MainWindowHandle != IntPtr.Zero)
         {
             if(_mapForm != null)
                 return;
             
-            _mapForm = new MapForm(_bias, () =>
+            _mapForm = new MapForm(_bias, _gameProcessProvider, () =>
             {
                 var selectedTags = checkedListBox1.CheckedItems.Cast<object>().Select(e => e.ToString());
                 return _iconPositionProvider.GetIcons(selectedTags);
@@ -143,7 +156,7 @@ public partial class MainForm : Form
     private void timer1_Tick(object sender, EventArgs e)
     {
         DataInfo.IsShowLine = cb_ShowLine.Checked;
-        var handle = DataInfo.GenshinMainHandle;
+        var handle = _gameProcessProvider.GetProcess().MainWindowHandle;
         if (handle != IntPtr.Zero && cb_AutoLoadScreen.Checked)
         {
             Win32Api.GetClientRect(handle, out rect);

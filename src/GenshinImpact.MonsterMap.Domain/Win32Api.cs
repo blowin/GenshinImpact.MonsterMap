@@ -1,8 +1,7 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace GenshinImpact.MonsterMap.Script;
+namespace GenshinImpact.MonsterMap.Domain;
 
 public partial class Win32Api
 {

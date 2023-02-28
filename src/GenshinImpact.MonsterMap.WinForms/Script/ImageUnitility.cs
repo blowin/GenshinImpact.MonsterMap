@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using GenshinImpact.MonsterMap.Domain;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using OpenCvSharp.Features2D;

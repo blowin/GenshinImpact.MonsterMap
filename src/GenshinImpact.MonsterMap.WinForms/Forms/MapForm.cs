@@ -4,13 +4,12 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Windows;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
+using GenshinImpact.MonsterMap.Domain.GameProcesses.GameProcessProviders;
 using GenshinImpact.MonsterMap.Script;
 using Icon = GenshinImpact.MonsterMap.Domain.Icons.Icon;
 using Point = System.Drawing.Point;
@@ -31,16 +30,18 @@ public partial class MapForm : Form
     private readonly FileSystemBias _bias;
     private readonly System.Timers.Timer _timer;
     private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly IGameProcessProvider _gameProcessProvider;
 
     private Bitmap _dealMap;
     private bool _lastWindowIsGenshin;
     private bool _isJumpOutOfTask;
     
-    private bool IsTopOfGenshin => Win32Api.GetForegroundWindow() == DataInfo.GenshinMainHandle; //The current top is Genshin
-
-    public MapForm(FileSystemBias bias, Func<IEnumerable<Icon>> iconLoader)
+    private static TimeSpan DelayTime => TimeSpan.FromMilliseconds(100);
+    
+    public MapForm(FileSystemBias bias, IGameProcessProvider gameProcessProvider, Func<IEnumerable<Icon>> iconLoader)
     {
         _bias = bias;
+        _gameProcessProvider = gameProcessProvider;
         _cancellationTokenSource = new CancellationTokenSource();
         InitializeComponent();
         
@@ -55,7 +56,8 @@ public partial class MapForm : Form
     
     private void TimerOnElapsed(object sender, ElapsedEventArgs e)
     {
-        if (!IsTopOfGenshin)
+        var process = _gameProcessProvider.GetProcess();
+        if (!process.IsTopOfProcess)
         {
             _lastWindowIsGenshin = false;
             return;
@@ -74,10 +76,11 @@ public partial class MapForm : Form
     {
         while (!_isJumpOutOfTask && !cancellationToken.IsCancellationRequested)
         {
-            var handle = DataInfo.GenshinMainHandle;
-            if (!DataInfo.IsDetection || handle == IntPtr.Zero)
+            var process = _gameProcessProvider.GetProcess();
+            var handle = process.MainWindowHandle;
+            if (!DataInfo.IsDetection || handle == IntPtr.Zero || process.HasExited)
             {
-                await Task.Delay(100, cancellationToken);
+                await Task.Delay(DelayTime, cancellationToken);
                 continue;
             }
 
@@ -96,7 +99,7 @@ public partial class MapForm : Form
                 var currentGameMap = ImageUnitility.GetScreenshot(handle, gamePoint);
                 if (currentGameMap == null)
                 {
-                    await Task.Delay(100, cancellationToken);
+                    await Task.Delay(DelayTime, cancellationToken);
                     continue;
                 }
                 
@@ -113,6 +116,12 @@ public partial class MapForm : Form
                 imgSub.Dispose();
 
                 g.Clear(Color.Transparent);
+                if (targetRect.Height <= 0 || targetRect.Width <= 0)
+                {
+                    await Task.Delay(DelayTime, cancellationToken);
+                    continue;
+                }
+                
                 if (!DataInfo.IsPauseShowIcon)
                 {
                     foreach (var pos in iconLoader())
@@ -175,7 +184,7 @@ public partial class MapForm : Form
                 Console.WriteLine(e.StackTrace);
             }
 
-            await Task.Delay(100, cancellationToken);
+            await Task.Delay(DelayTime, cancellationToken);
         }
     }
     
