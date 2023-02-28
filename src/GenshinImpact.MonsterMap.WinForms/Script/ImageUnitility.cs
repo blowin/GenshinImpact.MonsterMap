@@ -20,7 +20,7 @@ class ImageUnitility
     static Mat matSrcRet = new Mat();
     static KeyPoint[] keyPointsSrc = null;
     static KeyPoint[] keyPointsTo = null;
-    public static Rectangle MatchMap(Bitmap imgSrc, Bitmap imgSub, bool useSift, out Image outImage)
+    public static Rectangle MatchMap(Bitmap imgSrc, Bitmap imgSub, bool useSift, out Bitmap outImage)
     {
         Timer.Init();
         using (Mat matSrc = imgSrc.ToMat())
@@ -124,9 +124,7 @@ class ImageUnitility
                     {
                         Cv2.DrawMatches(matSrc, keyPointsSrc, matTo, keyPointsTo, goodMatches, outMat, flags: DrawMatchesFlags.NotDrawSinglePoints);
                     }
-                    if (DataInfo.dealMap != null) DataInfo.dealMap.Dispose();
-                    DataInfo.dealMap = BitmapConverter.ToBitmap(outMat);
-                    outImage = DataInfo.dealMap;
+                    outImage = outMat.ToBitmap();
                     var pointOriginX_R = pointsSrc.OrderBy(point => point.X).FirstOrDefault();//The rightmost point of the original image
                     var pointOriginX_L = pointsSrc.OrderByDescending(point => point.X).FirstOrDefault();//The leftmost point of the original image
 

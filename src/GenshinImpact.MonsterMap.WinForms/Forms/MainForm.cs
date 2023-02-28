@@ -59,30 +59,28 @@ public partial class MainForm : Form
         {
             btn_Close_Click(null, null);
         }
-        DataInfo.isDetection = true;
+        DataInfo.IsDetection = true;
     }
 
     private void HooksOnMousePressed(object sender, MouseHookEventArgs e)
     {
-        DataInfo.isPauseShowIcon = true;
-        DataInfo.isDetection = true;
+        DataInfo.IsPauseShowIcon = true;
+        DataInfo.IsDetection = true;
     }
 
     private void HooksOnMouseReleased(object sender, MouseHookEventArgs e)
     {
-        DataInfo.isPauseShowIcon = false;
-        DataInfo.isDetection = true;
+        DataInfo.IsPauseShowIcon = false;
+        DataInfo.IsDetection = true;
     }
         
     private void OnLoad(object sender, EventArgs e)
     {
         _hooks.RunAsync();
-        Win32Api.SetProcessDPIAware();
-        DataInfo.LoadData();
         var items = _iconPositionProvider.GetIconNames();
         checkedListBox1.Items.AddRange(items);
-        DataInfo.sampleImage = pictureSample;
-        DataInfo.pointImage = picturePoint;
+        DataInfo.SampleImage = pictureSample;
+        DataInfo.PointImage = picturePoint;
         //Control map calibration factor
         U0.Text = _bias.PixelPerIng;
         V0.Text = _bias.PixelPerLat;
@@ -100,7 +98,7 @@ public partial class MainForm : Form
 
     private void btn_Open_Click(object sender, EventArgs e)
     {
-        if (DataInfo.mainHandle != IntPtr.Zero)
+        if (DataInfo.GenshinMainHandle != IntPtr.Zero)
         {
             if(_mapForm != null)
                 return;
@@ -138,19 +136,19 @@ public partial class MainForm : Form
     private void button1_Click(object sender, EventArgs e) => OpenUrl("https://wiki.biligame.com/ys/%E5%8E%9F%E7%A5%9E%E5%9C%B0%E5%9B%BE%E5%B7%A5%E5%85%B7_%E5%85%A8%E5%9C%B0%E6%A0%87%E4%BD%8D%E7%BD%AE%E7%82%B9");
     private void btn_SetRect_Click(object sender, EventArgs e)
     {
-        DataInfo.width = int.Parse(game_width.Text);
-        DataInfo.height = int.Parse(game_height.Text);
+        DataInfo.Width = int.Parse(game_width.Text);
+        DataInfo.Height = int.Parse(game_height.Text);
     }
 
     private void timer1_Tick(object sender, EventArgs e)
     {
-        DataInfo.isShowLine = cb_ShowLine.Checked;
-        var handle = DataInfo.mainHandle;
+        DataInfo.IsShowLine = cb_ShowLine.Checked;
+        var handle = DataInfo.GenshinMainHandle;
         if (handle != IntPtr.Zero && cb_AutoLoadScreen.Checked)
         {
             Win32Api.GetClientRect(handle, out rect);
-            DataInfo.width = rect.Right;
-            DataInfo.height = rect.Bottom;
+            DataInfo.Width = rect.Right;
+            DataInfo.Height = rect.Bottom;
             game_width.Text = rect.Right + "";
             game_height.Text = rect.Bottom + "";
         }
