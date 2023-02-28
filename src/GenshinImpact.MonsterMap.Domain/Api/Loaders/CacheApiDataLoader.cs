@@ -1,15 +1,15 @@
-﻿using GenshinImpact.MonsterMap.Domain.Icons;
+﻿using GenshinImpact.MonsterMap.Domain.MapMarkers;
 
 namespace GenshinImpact.MonsterMap.Domain.Api.Loaders;
 
 public sealed class CacheApiDataLoader : IApiDataLoader
 {
-    private readonly Lazy<Icon[]> _lazyLoad;
+    private readonly Lazy<MapMarker[]> _lazyLoad;
 
     public CacheApiDataLoader(IApiDataLoader root)
     {
-        _lazyLoad = new Lazy<Icon[]>(() => root.Load().ToArray());
+        _lazyLoad = new Lazy<MapMarker[]>(() => root.Load().ToArray());
     }
 
-    public IEnumerable<Icon> Load() => _lazyLoad.Value;
+    public IEnumerable<MapMarker> Load() => _lazyLoad.Value;
 }

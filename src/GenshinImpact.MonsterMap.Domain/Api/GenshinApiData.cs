@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using GenshinImpact.MonsterMap.Domain.Icons;
+using GenshinImpact.MonsterMap.Domain.MapMarkers;
 
 namespace GenshinImpact.MonsterMap.Domain.Api;
 
@@ -25,11 +25,11 @@ public class GenshinApiData
             public string lat { get; set; }
         }
 
-        public Icon ToFileIcon()
+        public MapMarker ToFileIcon()
         {
             var lng = float.Parse(point.lng, CultureInfo.InvariantCulture.NumberFormat);
             var lat = float.Parse(point.lat, CultureInfo.InvariantCulture.NumberFormat);
-            return new Icon(icon, lng, lat);
+            return new MapMarker(icon, lng, lat);
         }
     }
 }

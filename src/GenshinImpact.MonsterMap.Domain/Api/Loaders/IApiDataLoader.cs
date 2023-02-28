@@ -1,8 +1,8 @@
-﻿using GenshinImpact.MonsterMap.Domain.Icons;
+﻿using GenshinImpact.MonsterMap.Domain.MapMarkers;
 
 namespace GenshinImpact.MonsterMap.Domain.Api.Loaders;
 
 public interface IApiDataLoader
 {
-    IEnumerable<Icon> Load();
+    IEnumerable<MapMarker> Load();
 }

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -11,7 +9,6 @@ using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Domain.GameProcesses.GameProcessProviders;
 using GenshinImpact.MonsterMap.Script;
-using Icon = GenshinImpact.MonsterMap.Domain.Icons.Icon;
 using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
 using Timer = GenshinImpact.MonsterMap.Script.Timer;
@@ -21,15 +18,12 @@ namespace GenshinImpact.MonsterMap.Forms;
 [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы")]
 public partial class MapForm : Form
 {
-    private static readonly Pen RedPen = new Pen(new SolidBrush(Color.Red));
-    private static readonly Pen WhitePen = new Pen(new SolidBrush(Color.White));
-    private static readonly Dictionary<string, Bitmap> IconDict = LoadData();
     private static readonly Bitmap TransparentMap = (Bitmap)Image.FromFile("img/transparent.png");
     private static readonly IntPtr HDeskTop = Win32Api.FindWindow("Progman ", "Program   Manager ");
     
-    private readonly FileSystemBias _bias;
     private readonly System.Timers.Timer _timer;
     private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly MapInfoDrawer _drawer;
     private readonly IGameProcessProvider _gameProcessProvider;
 
     private Bitmap _dealMap;
@@ -38,42 +32,24 @@ public partial class MapForm : Form
     
     private static TimeSpan DelayTime => TimeSpan.FromMilliseconds(100);
     
-    public MapForm(FileSystemBias bias, IGameProcessProvider gameProcessProvider, Func<IEnumerable<Icon>> iconLoader)
+    public MapForm(MapInfoDrawer drawer, IGameProcessProvider gameProcessProvider)
     {
-        _bias = bias;
+        _drawer = drawer;
         _gameProcessProvider = gameProcessProvider;
         _cancellationTokenSource = new CancellationTokenSource();
         InitializeComponent();
         
         Closing += OnClosing;
-        
-        Graphics g = Graphics.FromImage(TransparentMap);
-        var _ = Task.Run(async () => await RunMapJob(g, iconLoader, _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+        var _ = Task.Run(async () => await RunMapJob(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
         _timer = new System.Timers.Timer(TimeSpan.FromMilliseconds(100));
         _timer.Elapsed += TimerOnElapsed;
         _timer.Start();
     }
-    
-    private void TimerOnElapsed(object sender, ElapsedEventArgs e)
+
+    private async Task RunMapJob(CancellationToken cancellationToken)
     {
-        var process = _gameProcessProvider.GetProcess();
-        if (!process.IsTopOfProcess)
-        {
-            _lastWindowIsGenshin = false;
-            return;
-        }
-
-        if (!_lastWindowIsGenshin) //The original god process was not on the top when it was detected last time
-        {
-            Console.WriteLine("Re-top");
-            Win32Api.SetParent(Handle, HDeskTop); //top
-        }
-
-        _lastWindowIsGenshin = true;
-    }
-
-    private async Task RunMapJob(Graphics g, Func<IEnumerable<Icon>> iconLoader, CancellationToken cancellationToken)
-    {
+        var graphics = Graphics.FromImage(TransparentMap);
+        
         while (!_isJumpOutOfTask && !cancellationToken.IsCancellationRequested)
         {
             var process = _gameProcessProvider.GetProcess();
@@ -105,17 +81,8 @@ public partial class MapForm : Form
                 
                 DataInfo.GameMap = currentGameMap; 
                 
-                int scaleSrc = 1;
-                int scaleSub = 3;
-                Bitmap imgSrc = DataInfo.MainMap;
-                Bitmap imgSub = (Bitmap)DataInfo.GameMap.GetThumbnailImage(DataInfo.GameMap.Width / scaleSub,
-                    DataInfo.GameMap.Height / scaleSub, null, IntPtr.Zero);
-                Rectangle targetRect = ImageUnitility.MatchMap(imgSrc, imgSub, true, out var outImage);
-                _dealMap?.Dispose();
-                _dealMap = outImage;
-                imgSub.Dispose();
-
-                g.Clear(Color.Transparent);
+                var targetRect = GetTargetRect(DataInfo.MainMap, DataInfo.GameMap);
+                graphics.Clear(Color.Transparent);
                 if (targetRect.Height <= 0 || targetRect.Width <= 0)
                 {
                     await Task.Delay(DelayTime, cancellationToken);
@@ -124,48 +91,12 @@ public partial class MapForm : Form
                 
                 if (!DataInfo.IsPauseShowIcon)
                 {
-                    foreach (var pos in iconLoader())
-                    {
-                        int x = (int)((pos.GetX(_bias.PixelPerIng, _bias.IngBias) - targetRect.X) *
-                                      (Size.Width * 1.0f / targetRect.Width));
-                        int y = (int)((pos.GetY(_bias.PixelPerLat, _bias.LatBias) - targetRect.Y) *
-                                      (Size.Height * 1.0f / targetRect.Height));
-                        Bitmap icon = IconDict[pos.Name];
-                        if ((x - icon.Width / 2) > 0 && (y - icon.Height) > 0)
-                        {
-                            if ((x - icon.Width / 2) < DataInfo.Width && (y - icon.Height) < DataInfo.Height)
-                            {
-                                g.DrawImage(icon, new PointF(x - icon.Width / 2, y - icon.Height));
-                            }
-                        }
-                    }
-               
+                    _drawer.DrawMarkers(graphics, targetRect, Size, DataInfo.Width, DataInfo.Height);
+
                     if (DataInfo.IsShowLine)
-                    {
-                        for (int x = -100; x < 110; x += 10)
-                        {
-                            g.DrawLine(WhitePen, _bias.ToMapPosX(x, targetRect, Size),
-                                _bias.ToMapPosY(-100, targetRect, Size), _bias.ToMapPosX(x, targetRect, Size),
-                                _bias.ToMapPosY(100, targetRect, Size));
-                        }
-
-                        for (int y = -100; y < 110; y += 10)
-                        {
-                            g.DrawLine(WhitePen, _bias.ToMapPosX(-100, targetRect, Size),
-                                _bias.ToMapPosY(y, targetRect, Size), _bias.ToMapPosX(100, targetRect, Size),
-                                _bias.ToMapPosY(y, targetRect, Size));
-                        }
-
-                        g.DrawLine(RedPen, _bias.ToMapPosX(-100, targetRect, Size),
-                            _bias.ToMapPosY(0, targetRect, Size), _bias.ToMapPosX(100, targetRect, Size),
-                            _bias.ToMapPosY(0, targetRect, Size));
-                        g.DrawLine(RedPen, _bias.ToMapPosX(0, targetRect, Size),
-                            _bias.ToMapPosY(-100, targetRect, Size), _bias.ToMapPosX(0, targetRect, Size),
-                            _bias.ToMapPosY(100, targetRect, Size));
-                    }
+                        _drawer.DrawLines(graphics, targetRect, Size);
                 }
-
-
+                
                 Console.WriteLine("Coordinates drawn");
                 DataInfo.SampleImage.Image = DataInfo.GameMap;
                 DataInfo.PointImage.Image = _dealMap;
@@ -187,6 +118,19 @@ public partial class MapForm : Form
             await Task.Delay(DelayTime, cancellationToken);
         }
     }
+
+    private Rectangle GetTargetRect(Bitmap imgSrc, Bitmap gameMap)
+    {
+        const int scaleSub = 3;
+        var thumbWidth = gameMap.Width / scaleSub;
+        var thumbHeight = gameMap.Height / scaleSub;
+        using var imgSub = (Bitmap)gameMap.GetThumbnailImage(thumbWidth, thumbHeight, null, IntPtr.Zero);
+        var targetRect = ImageUnitility.MatchMap(imgSrc, imgSub, true, out var outImage);
+        _dealMap?.Dispose();
+        _dealMap = outImage;
+        imgSub.Dispose();
+        return targetRect;
+    }
     
     private void OnClosing(object sender, CancelEventArgs e)
     {
@@ -197,13 +141,21 @@ public partial class MapForm : Form
         _cancellationTokenSource.Dispose();
     }
     
-    private static Dictionary<string, Bitmap> LoadData()
+    private void TimerOnElapsed(object sender, ElapsedEventArgs e)
     {
-        var res = new Dictionary<string, Bitmap>();
-        foreach (var icon in new DirectoryInfo("icon").GetFiles())
+        var process = _gameProcessProvider.GetProcess();
+        if (!process.IsTopOfProcess)
         {
-            res[icon.Name] = (Bitmap)Image.FromFile(icon.FullName);
+            _lastWindowIsGenshin = false;
+            return;
         }
-        return res;
+
+        if (!_lastWindowIsGenshin) //The original god process was not on the top when it was detected last time
+        {
+            Console.WriteLine("Re-top");
+            Win32Api.SetParent(Handle, HDeskTop); //top
+        }
+
+        _lastWindowIsGenshin = true;
     }
 }

@@ -1,4 +1,4 @@
-﻿using GenshinImpact.MonsterMap.Domain.Icons;
+﻿using GenshinImpact.MonsterMap.Domain.MapMarkers;
 
 namespace GenshinImpact.MonsterMap.Domain.Api.Loaders;
 
@@ -21,7 +21,7 @@ public sealed class PreparedApiDataLoader : IApiDataLoader
         };
     }
 
-    public IEnumerable<Icon> Load()
+    public IEnumerable<MapMarker> Load()
     {
         foreach (var apiDataLoader in _apiDataLoaders)
         {

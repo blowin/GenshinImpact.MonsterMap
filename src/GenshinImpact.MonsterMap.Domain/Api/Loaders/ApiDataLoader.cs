@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using GenshinImpact.MonsterMap.Domain.Icons;
+using GenshinImpact.MonsterMap.Domain.MapMarkers;
 using RestSharp;
 
 namespace GenshinImpact.MonsterMap.Domain.Api.Loaders;
@@ -14,7 +14,7 @@ public sealed class ApiDataLoader : IApiDataLoader
         _cookie = cookie;
     }
 
-    public IEnumerable<Icon> Load()
+    public IEnumerable<MapMarker> Load()
     {
         var response = Execute(_cookie);
         if (response?.Content == null)

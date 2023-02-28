@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Domain.Api.Loaders;
 using GenshinImpact.MonsterMap.Domain.GameProcesses.GameProcessProviders;
-using GenshinImpact.MonsterMap.Domain.Icons;
+using GenshinImpact.MonsterMap.Domain.MapMarkers;
 using GenshinImpact.MonsterMap.Script;
 using SharpHook;
 using SharpHook.Native;
@@ -17,7 +17,7 @@ public partial class MainForm : Form
     private readonly IGameProcessProvider _gameProcessProvider;
     private readonly FileSystemBias _bias;
     private readonly TaskPoolGlobalHook _hooks;
-    private readonly IconPositionProvider _iconPositionProvider;
+    private readonly MapMarkerProvider _mapMarkerProvider;
     private MapForm _mapForm;
     
     // required!
@@ -30,7 +30,7 @@ public partial class MainForm : Form
         _gameProcessProvider = CreateGameProcessProvider();
         _hooks = new TaskPoolGlobalHook();
         _bias = new FileSystemBias("config/bias.txt");
-        _iconPositionProvider = new IconPositionProvider(new PreparedApiDataLoader(), "config/IconPosition.txt");
+        _mapMarkerProvider = new MapMarkerProvider(new PreparedApiDataLoader(), "config/IconPosition.txt");
         _hooks.MousePressed += HooksOnMousePressed;
         _hooks.MouseReleased += HooksOnMouseReleased;
         _hooks.KeyPressed += HooksOnKeyPressed;
@@ -89,7 +89,7 @@ public partial class MainForm : Form
     private void OnLoad(object sender, EventArgs e)
     {
         _hooks.RunAsync();
-        var items = _iconPositionProvider.GetIconNames();
+        var items = _mapMarkerProvider.GetIconNames();
         checkedListBox1.Items.AddRange(items);
         DataInfo.SampleImage = pictureSample;
         DataInfo.PointImage = picturePoint;
@@ -115,12 +115,13 @@ public partial class MainForm : Form
         {
             if(_mapForm != null)
                 return;
-            
-            _mapForm = new MapForm(_bias, _gameProcessProvider, () =>
+
+            var drawer = new MapInfoDrawer(_bias, () =>
             {
                 var selectedTags = checkedListBox1.CheckedItems.Cast<object>().Select(e => e.ToString());
-                return _iconPositionProvider.GetIcons(selectedTags);
+                return _mapMarkerProvider.GetMarkersByIcon(selectedTags);
             });
+            _mapForm = new MapForm(drawer, _gameProcessProvider);
             _mapForm.Show();
         }
         else
@@ -138,7 +139,7 @@ public partial class MainForm : Form
         _mapForm = null;
     }
     
-    private void btn_update_Click(object sender, EventArgs e) => _iconPositionProvider.UpdateData();
+    private void btn_update_Click(object sender, EventArgs e) => _mapMarkerProvider.UpdateData();
     private void btn__Boss_Click(object sender, EventArgs e) => Enumerable.Range(0, 8).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
     private void btnMonster_Click(object sender, EventArgs e) => Enumerable.Range(8, 15).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));
     private void btn_collection_Click(object sender, EventArgs e) => Enumerable.Range(22, 19).ToList().ForEach(num => checkedListBox1.SetItemChecked(num, true));

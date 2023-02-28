@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace GenshinImpact.MonsterMap.Domain.Icons;
+namespace GenshinImpact.MonsterMap.Domain.MapMarkers;
 
-public class Icon
+public class MapMarker
 {
     [JsonPropertyName("name")]
     public string Name { get; private set; }
@@ -13,7 +13,7 @@ public class Icon
     [JsonPropertyName("lat")]
     public float Lat { get; private set; }
  
-    public Icon(string name, float lng, float lat)
+    public MapMarker(string name, float lng, float lat)
     {
         Name = name;
         Lng = lng;
