@@ -19,6 +19,7 @@ public partial class MainForm : Form
     private readonly TaskPoolGlobalHook _hooks;
     private readonly MapMarkerProvider _mapMarkerProvider;
     private MapForm _mapForm;
+    private GameSize _gameSize;
     
     // required!
     private RECT rect = new();
@@ -27,6 +28,7 @@ public partial class MainForm : Form
     {
         InitializeComponent();
         Text = "Genshin Radar Filter v3.0";
+        _gameSize = new GameSize();
         _gameProcessProvider = CreateGameProcessProvider();
         _hooks = new TaskPoolGlobalHook();
         _bias = new FileSystemBias("config/bias.txt");
@@ -116,12 +118,12 @@ public partial class MainForm : Form
             if(_mapForm != null)
                 return;
 
-            var drawer = new MapInfoDrawer(_bias, () =>
+            var drawer = new MapInfoDrawer(_bias, _gameSize, () =>
             {
                 var selectedTags = checkedListBox1.CheckedItems.Cast<object>().Select(e => e.ToString());
                 return _mapMarkerProvider.GetMarkersByIcon(selectedTags);
             });
-            _mapForm = new MapForm(drawer, _gameProcessProvider);
+            _mapForm = new MapForm(drawer, _gameProcessProvider, _gameSize);
             _mapForm.Show();
         }
         else
@@ -150,8 +152,8 @@ public partial class MainForm : Form
     private void button1_Click(object sender, EventArgs e) => OpenUrl("https://wiki.biligame.com/ys/%E5%8E%9F%E7%A5%9E%E5%9C%B0%E5%9B%BE%E5%B7%A5%E5%85%B7_%E5%85%A8%E5%9C%B0%E6%A0%87%E4%BD%8D%E7%BD%AE%E7%82%B9");
     private void btn_SetRect_Click(object sender, EventArgs e)
     {
-        DataInfo.Width = int.Parse(game_width.Text);
-        DataInfo.Height = int.Parse(game_height.Text);
+        _gameSize.Width = int.Parse(game_width.Text);
+        _gameSize.Height = int.Parse(game_height.Text);
     }
 
     private void timer1_Tick(object sender, EventArgs e)
@@ -161,8 +163,8 @@ public partial class MainForm : Form
         if (handle != IntPtr.Zero && cb_AutoLoadScreen.Checked)
         {
             Win32Api.GetClientRect(handle, out rect);
-            DataInfo.Width = rect.Right;
-            DataInfo.Height = rect.Bottom;
+            _gameSize.Width = rect.Right;
+            _gameSize.Height = rect.Bottom;
             game_width.Text = rect.Right + "";
             game_height.Text = rect.Bottom + "";
         }

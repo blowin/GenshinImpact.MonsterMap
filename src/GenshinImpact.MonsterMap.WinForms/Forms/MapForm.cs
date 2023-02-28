@@ -25,6 +25,7 @@ public partial class MapForm : Form
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly MapInfoDrawer _drawer;
     private readonly IGameProcessProvider _gameProcessProvider;
+    private readonly GameSize _gameSize;
 
     private Bitmap _dealMap;
     private bool _lastWindowIsGenshin;
@@ -32,10 +33,11 @@ public partial class MapForm : Form
     
     private static TimeSpan DelayTime => TimeSpan.FromMilliseconds(100);
     
-    public MapForm(MapInfoDrawer drawer, IGameProcessProvider gameProcessProvider)
+    public MapForm(MapInfoDrawer drawer, IGameProcessProvider gameProcessProvider, GameSize gameSize)
     {
         _drawer = drawer;
         _gameProcessProvider = gameProcessProvider;
+        _gameSize = gameSize;
         _cancellationTokenSource = new CancellationTokenSource();
         InitializeComponent();
         
@@ -66,7 +68,7 @@ public partial class MapForm : Form
                 var gamePoint = new Point();
                 Win32Api.ClientToScreen(handle, ref gamePoint);
 
-                Action changeSize = () => Size = new Size(DataInfo.Width, DataInfo.Height);
+                Action changeSize = () => Size = new Size(_gameSize.Width, _gameSize.Height);
                 Invoke(changeSize);
 
                 Action changeLocation = () => Location = gamePoint;
@@ -91,10 +93,10 @@ public partial class MapForm : Form
                 
                 if (!DataInfo.IsPauseShowIcon)
                 {
-                    _drawer.DrawMarkers(graphics, targetRect, Size, DataInfo.Width, DataInfo.Height);
+                    _drawer.DrawMarkers(graphics, targetRect);
 
                     if (DataInfo.IsShowLine)
-                        _drawer.DrawLines(graphics, targetRect, Size);
+                        _drawer.DrawLines(graphics, targetRect);
                 }
                 
                 Console.WriteLine("Coordinates drawn");

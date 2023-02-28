@@ -21,7 +21,7 @@ public sealed class CacheGameProcess : IGameProcessProvider
             if (cacheItem?.Value != null)
             {
                 var cachedProcess = (IGameProcess)cacheItem.Value;
-                if (cachedProcess is not EmptyGameProcess && !cachedProcess.HasExited)
+                if (cachedProcess is EmptyGameProcess || !cachedProcess.HasExited)
                     return cachedProcess;
 
                 MemoryCache.Default.Remove(CacheKey);

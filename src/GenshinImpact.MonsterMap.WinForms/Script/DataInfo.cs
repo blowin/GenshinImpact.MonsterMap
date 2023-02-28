@@ -13,8 +13,6 @@ class DataInfo
     public static PictureBox SampleImage; //Sample screenshots from the game
     public static PictureBox PointImage; //Feature point comparison screenshot
     
-    public static int Width = 1920;
-    public static int Height = 1080;
     public static bool IsDetection = false;
     public static bool IsShowLine = false;
     public static bool IsPauseShowIcon = false;
