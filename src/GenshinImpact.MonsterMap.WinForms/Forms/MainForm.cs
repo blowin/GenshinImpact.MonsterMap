@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Domain.Api.Loaders;
 using GenshinImpact.MonsterMap.Domain.GameProcesses.GameProcessProviders;
+using GenshinImpact.MonsterMap.Domain.ImageMatchers;
 using GenshinImpact.MonsterMap.Domain.MapMarkers;
 using GenshinImpact.MonsterMap.Script;
 using SharpHook;
@@ -18,6 +20,7 @@ public partial class MainForm : Form
     private readonly FileSystemBias _bias;
     private readonly TaskPoolGlobalHook _hooks;
     private readonly MapMarkerProvider _mapMarkerProvider;
+    private readonly Lazy<ImageMatcher> _lazyImageMatcher;
     private MapForm _mapForm;
     private GameSize _gameSize;
     
@@ -28,6 +31,11 @@ public partial class MainForm : Form
     {
         InitializeComponent();
         Text = "Genshin Radar Filter v3.0";
+        _lazyImageMatcher = new Lazy<ImageMatcher>(() =>
+        {
+            var mainMap = (Bitmap)Image.FromFile("img/MainMap.jpg");
+            return new SIFTImageMatcher(mainMap);
+        });
         _gameSize = new GameSize();
         _gameProcessProvider = CreateGameProcessProvider();
         _hooks = new TaskPoolGlobalHook();
@@ -123,7 +131,7 @@ public partial class MainForm : Form
                 var selectedTags = checkedListBox1.CheckedItems.Cast<object>().Select(e => e.ToString());
                 return _mapMarkerProvider.GetMarkersByIcon(selectedTags);
             });
-            _mapForm = new MapForm(drawer, _gameProcessProvider, _gameSize);
+            _mapForm = new MapForm(drawer, _gameProcessProvider, _lazyImageMatcher.Value, _gameSize);
             _mapForm.Show();
         }
         else

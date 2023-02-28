@@ -8,6 +8,7 @@ using System.Timers;
 using System.Windows.Forms;
 using GenshinImpact.MonsterMap.Domain;
 using GenshinImpact.MonsterMap.Domain.GameProcesses.GameProcessProviders;
+using GenshinImpact.MonsterMap.Domain.ImageMatchers;
 using GenshinImpact.MonsterMap.Script;
 using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
@@ -25,6 +26,7 @@ public partial class MapForm : Form
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly MapInfoDrawer _drawer;
     private readonly IGameProcessProvider _gameProcessProvider;
+    private readonly ImageMatcher _imageMatcher;
     private readonly GameSize _gameSize;
 
     private Bitmap _dealMap;
@@ -33,10 +35,11 @@ public partial class MapForm : Form
     
     private static TimeSpan DelayTime => TimeSpan.FromMilliseconds(100);
     
-    public MapForm(MapInfoDrawer drawer, IGameProcessProvider gameProcessProvider, GameSize gameSize)
+    public MapForm(MapInfoDrawer drawer, IGameProcessProvider gameProcessProvider, ImageMatcher imageMatcher, GameSize gameSize)
     {
         _drawer = drawer;
         _gameProcessProvider = gameProcessProvider;
+        _imageMatcher = imageMatcher;
         _gameSize = gameSize;
         _cancellationTokenSource = new CancellationTokenSource();
         InitializeComponent();
@@ -83,7 +86,7 @@ public partial class MapForm : Form
                 
                 DataInfo.GameMap = currentGameMap; 
                 
-                var targetRect = GetTargetRect(DataInfo.MainMap, DataInfo.GameMap);
+                var targetRect = GetTargetRect(DataInfo.GameMap);
                 graphics.Clear(Color.Transparent);
                 if (targetRect.Height <= 0 || targetRect.Width <= 0)
                 {
@@ -121,13 +124,13 @@ public partial class MapForm : Form
         }
     }
 
-    private Rectangle GetTargetRect(Bitmap imgSrc, Bitmap gameMap)
+    private Rectangle GetTargetRect(Bitmap gameMap)
     {
         const int scaleSub = 3;
         var thumbWidth = gameMap.Width / scaleSub;
         var thumbHeight = gameMap.Height / scaleSub;
         using var imgSub = (Bitmap)gameMap.GetThumbnailImage(thumbWidth, thumbHeight, null, IntPtr.Zero);
-        var targetRect = ImageUnitility.MatchMap(imgSrc, imgSub, true, out var outImage);
+        var targetRect = _imageMatcher.MatchMap(imgSub, out var outImage);
         _dealMap?.Dispose();
         _dealMap = outImage;
         imgSub.Dispose();
