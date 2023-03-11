@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Locations" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Locations\Enkanomiya.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Locations\Inazuma.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Locations\Liyue.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Locations\Mondstadt.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Locations\Sumeru.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Locations\Underground Mine.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AngleSharp" Version="1.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.3" />
+      <PackageReference Include="SixLabors.ImageSharp" Version="3.0.0" />
+    </ItemGroup>
+
+</Project>
